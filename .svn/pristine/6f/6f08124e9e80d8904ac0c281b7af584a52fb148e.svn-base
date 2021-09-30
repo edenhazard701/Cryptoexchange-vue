@@ -1,0 +1,296 @@
+<template>
+  <div class="StockTime">
+    <div class="el-table el-table--fit el-table--scrollable-y el-table--enable-row-hover">
+      <div class="el-table__header-wrapper">
+        <table cellspacing="0" cellpadding="0" border="0" class="el-table__header">
+          <thead>
+            <tr>
+              <th class="el-table_11_column_52 is-leaf" width="38%">
+                <div class="cell"><!-- 가격 -->{{ $t('exchange.d001') }}({{$_.findWhere(nameList, {o_symbol : currentSymbol}) | codeFilter}})</div>
+              </th>
+              <th class="el-table_11_column_53 is-right is-leaf" align="right" width="36%">
+                <div class="cell"><!-- 수량 -->{{ $t('exchange.d002') }}({{$_.findWhere(nameList, {o_symbol : currentSymbol}) | coinFilter}})</div>
+              </th>
+              <th class="el-table_11_column_54 is-right is-leaf" align="right" width="26%">
+                <div class="cell"><!-- 체결시간 -->{{ $t('exchange.d003') }}</div>
+              </th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+    <el-scrollbar wrap-class="scrollbar-wrapper" :native="false" class="scroll-area">
+      <div class="table-wrap">
+        <div v-for="item in showList">
+          <div>
+            <span>{{item.execprice}}</span>
+            <span :class="item.exectype == 1 ? 'blue' : 'red' ">{{item.execqty}}</span>
+            <span>{{item.exectime}}</span>
+          </div>
+        </div>        
+      </div>
+    </el-scrollbar>
+  </div>
+</template>
+<script>
+import {
+    _
+  } from 'vue-underscore';
+import {
+    mapState,
+    mapGetters
+  } from 'vuex';
+import { setTimeout } from 'timers';
+  export default {
+    data() {
+      return {
+        name: 'StockTime',
+        savedListDataArr:[],    // 이전 리스트 데이터
+        showList: [],           // 표시 리스트 데이터
+        fixedVal: 0,            // 소숫점처리값
+        isMock: false,          // 테스트 여부
+        mockCount: 1,           // 테스트 데이터 초당 요청건수
+        checkCurrentDate: -1    // 현재시간
+      };
+    },
+    computed: {
+        ...mapState({
+            nameList : state => state.data['n1001'],
+            currentSymbol: state => state.data.currentSymbol,
+            beforeSymbol: state => state.data.beforeSymbol,
+            trSymbols: state => state.data.trSymbols
+        }),
+    },
+    filters: { 
+      codeFilter: function (obj) { // 마켓코드 출력 형식
+        if(obj == null) return '';
+        var abbr = obj['o_inst_eng_abbr'];
+        var strs = abbr.split("/");        
+        if(strs.length > 1) return strs[1]
+        return ''
+      },
+      coinFilter: function(obj){ // 종목코드 출력 형식
+        if(obj == null) return ''
+        var abbr = obj['o_inst_eng_abbr'];
+        var strs = abbr.split("/");        
+        if(strs.length > 1) return strs[0]
+        return ''
+      }      
+    },
+    methods: {
+      prcFormat: function (obj) { // 거래금액 출력 형식
+        if(obj == '') return '';
+        
+        if(obj.indexOf('.')>-1){
+          if(parseFloat(obj)>0){
+            var val1 =  UnitManager.numberWithCommas(parseInt(obj))
+            var val2 = obj.split('.')[1];
+            return val1+'.'+val2;
+          }else{
+            return obj;
+          }
+        }else{
+          return UnitManager.numberWithCommas(obj)
+        }
+      },
+      restFormat: function(obj){ // 거래수량 출력 형식
+        if (obj == null || obj == '') {
+          return '';
+        }
+        var number = parseFloat(obj);
+        var val = number.toFixed(this.fixedVal);
+        return UnitManager.numberWithCommas(val);
+      },
+      requestI0002() { // 체결 데이터 조회 요청
+        var self = this;        
+        self.showList = [];        
+        self.$socket.sendProcessByName('i0002',
+          function (queryData) {
+            var block = queryData.getBlockData('InBlock1')[0];
+            // 조회구분
+            block['symbol'] = self.currentSymbol;
+            block['in_cnt'] = '50';
+
+          },
+          function (queryData) {
+            if (queryData != null) {              
+              var list = queryData['queryObj']['OutBlock2'];
+              for(var i = 0; i < list.length; i++){
+                var obj = list[i];
+                obj['execprice'] = self.prcFormat(obj['execprice']);
+                obj['execqty'] = self.restFormat(obj['execqty']);
+                obj['exectime'] = self.changeTime(obj['exectime']);
+                list[i] = obj;
+              }
+              self.savedListDataArr = list;
+              self.showList = self.savedListDataArr;              
+            } else {
+              // 전문 에러 언어팩 적용
+              const errorData = JSON.parse( window.sessionStorage.getItem('lastErrorData') );
+              if (errorData.trName != "i0002") return
+
+              self.$alert(self.$t('sys_err.' + errorData.errCode), '', {
+                  dangerouslyUseHTMLString: true,
+                  confirmButtonText: self.$t('sys_err.a001')
+              });
+            }
+          });
+      },
+      excuetKVS0Time() { // KVS0 실시간 데이터 처리
+        var self = this;
+        setTimeout(function(){
+          var newArr = [];
+          var cnt = 50;
+          if(self.savedListDataArr.length < 50){
+            cnt = self.savedListDataArr.length;
+          }
+          for(var i = 0; i < cnt; i++){
+            newArr.push(self.savedListDataArr[i]);
+          }
+          self.showList = newArr;
+          //console.log(self.showList)
+        }, 0);
+        
+      },
+      requestKVS0() { // KVS0 실시간 데이터 요청
+        var self = this;
+        
+        self.$socket.unregisterReal('KVS0', [self.beforeSymbol], self.name);
+        self.$socket.registerReal('KVS0', "symbol", [self.currentSymbol], self.name, function (queryData){
+          
+          // 리얼데이터 예외처리 Start
+          if(queryData == null) return;
+          var data = queryData.queryObj.OutBlock1[0];
+          if(data == null || data.symbol != self.currentSymbol) return;
+          // 리얼데이터 예외처리 End
+
+          var newDate = {};
+          newDate['execprice'] = self.prcFormat(data['execprice']);
+          newDate['execqty'] = self.restFormat(data['execqty']);
+          newDate['exectime'] = self.changeTime(data['exectime']);
+          newDate['exectype'] = data['exectype'];
+          
+          self.savedListDataArr.unshift(newDate);
+
+          if (self.savedListDataArr.length >= 250) {
+              self.savedListDataArr.slice(0, 200);
+          }
+          var now = new Date();
+          if (self.checkCurrentDate < 0) {
+            self.checkCurrentDate = now.getTime();
+            self.excuetKVS0Time();
+          } else {
+            var gap = now.getTime() - self.checkCurrentDate;
+
+            if (gap > 200) {
+              //console.log("StockTime : gap " + gap);
+              self.excuetKVS0Time();
+              
+            }
+
+            setTimeout(function(){
+              self.excuetKVS0Time();
+            }, 100);
+            gap = null;
+            self.checkCurrentDate = now.getTime();
+          }
+          now = null;
+        });
+      },
+      requestKVS0Mock(){ // 테스트 데이터
+        
+      },
+      setFixedVal() { // 소수점 자릿수 구하기
+        var self = this;
+        var unitQty = self.$_.findWhere(self.nameList, {o_symbol : self.currentSymbol})["o_ord_unit_qty"];
+        var unitQtyLen = unitQty.toString().indexOf(1)-1;
+        var findObj = _.findWhere( self.nameList, {o_symbol : self.currentSymbol});
+        var coinCode = findObj['o_inst_eng_abbr'].split('/')[0];
+        var oOrdUnitQty = findObj['o_ord_unit_qty'].toFixed(20);
+        var oOrdUnitQtyLen = 0;        
+        if(findObj['o_ord_unit_qty'] < 1 && findObj['o_ord_unit_qty'] > 0){
+          oOrdUnitQtyLen = oOrdUnitQty.split('.')[1].indexOf('1')+1
+        }
+        self.fixedVal = oOrdUnitQtyLen;
+      },
+      addComma(number) {  // 숫자 출력형식
+        var parts = number.toString().split(".");
+        return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (parts[1] ? "." + parts[1] : "");
+      },
+      changeTime(time) {  // 체결시간 출력형식
+        var timeRegExp = /(\d{2})(\d{2})(\d{2})(\d*)/;
+        return time.toString().replace(timeRegExp, "$1:$2:$3");
+      },
+      // dataLoaded 값이 false일 경우 데이터 요청 처리
+      // 동시 dataLoaded를 true로 변경하여 중복 요청 방지
+      loadStockDataCallback(){ // loadStockData 이벤트 콜백 함수
+        var self = this;
+        if(self.dataLoaded) return;
+        self.dataLoaded = true;
+        self.setFixedVal();
+        self.requestI0002();
+
+        if(self.isMock){
+          self.requestKVS0Mock();
+        }else{
+          self.requestKVS0();
+        }
+      },
+      // 신규상장, 소켓재접속등 데이터 재조회 필요시 받는 event 
+      // resetLoadStockData 이벤트가 먼저 실행되어 dataLoaded 값이 false로 변경
+      // 재조회 가능 상태로 처리
+      resetLoadStockDataCallback(){ // resetLoadStockData 이벤트 콜백 함수
+        var self = this;
+        self.dataLoaded = false;
+      },
+      changeCurrentSymbolCallback(symbol){ // changeCurrentSymbol 이벤트 콜백 함수
+        var self = this;
+        self.showList = [];
+        self.setFixedVal();
+        self.requestI0002();
+
+        if(self.isMock){
+          self.requestKVS0Mock();
+        }else{
+          self.requestKVS0();
+        }
+      }
+    },
+    created() {
+      var self = this;
+
+    },
+    mounted() {
+      var self = this;
+      if (self.$store.getters.isSocketConnected) 
+      {
+        self.$EventBus.$on('loadStockData', self.loadStockDataCallback);
+        self.$EventBus.$on('changeCurrentSymbol', self.changeCurrentSymbolCallback);
+        self.$EventBus.$on('resetLoadStockData', self.resetLoadStockDataCallback);
+        
+        if(self.nameList.length > 0 && !self.dataLoaded){
+          self.$EventBus.$emit('loadStockData');
+        }
+      } else {
+        self.$EventBus.$on('socketConnected', () => 
+        {
+            self.$EventBus.$on('loadStockData', self.loadStockDataCallback);
+            self.$EventBus.$on('changeCurrentSymbol', self.changeCurrentSymbolCallback);
+            self.$EventBus.$on('resetLoadStockData', self.resetLoadStockDataCallback);
+            
+            if(self.nameList.length > 0 && !self.dataLoaded){
+              self.$EventBus.$emit('loadStockData');
+            }
+       })
+      }
+    },
+    beforeDestroy() {
+      var self = this;
+      self.$socket.unregisterReal('KVS0', [self.currentSymbol], self.name);     
+      
+      self.$EventBus.$off('loadStockData', self.loadStockDataCallback);
+      self.$EventBus.$off('resetLoadStockData', self.resetLoadStockDataCallback);
+      self.$EventBus.$off('changeCurrentSymbol', self.changeCurrentSymbolCallback);
+    }
+  };
+</script>

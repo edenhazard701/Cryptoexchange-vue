@@ -1,0 +1,75 @@
+<html><head><title>SystemTradingHelp</title>
+<style type="text/css">
+body,td {font-family: "돋움", "Arial", "Verdana";	font-size: 12px;}
+
+font.link { color: blue; text-decoration: underline; CURSOR: hand }
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head>
+
+<BODY leftmargin="10" topmargin="10" marginwidth="10" marginheight="10">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr> 
+    <td>OBV (On Ballance Volume)</td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td><table width="100%" border="0" cellpadding="10" cellspacing="1" bgcolor="D1D5DC">
+        <tr> 
+          <td bgcolor="F3F3F3" style="line-height:140%;"><p><strong><font color="0886B1">1. 
+              의미</font></strong><br>
+              <br>
+              주가와 거래량을 동시에 고려한 지표로 현재의 시장이 매집 국면인지 분산국면인지를 파악할수 있게 해줍니다. 특히 주식 
+              시장이 큰 변동 없이 정체 상태에 있을 때, 주가의 향후 추세를 예측할수 있게 해 줍니다.</p></td>
+        </tr>
+      </table></td>
+  </tr>
+  <tr> 
+    <td height="5">&nbsp;</td>
+  </tr>
+  <tr> 
+    <td><table width="100%" border="0" cellpadding="10" cellspacing="1" bgcolor="D1D5DC">
+        <tr> 
+          <td valign="top" bgcolor="F3F3F3" style="line-height:140%;"> <p><strong><font color="0886B1">2. 
+              계산식 </font></strong></p>
+            <p> 당일 종가 &gt; 전일 종가 이면 <br>
+              OBV = 전일 OBV + 당일 거래량<br>
+              <br>
+              당일 종가 &lt; 전일 종가 이면 <br>
+              OBV = 전일 OBV - 당일 거래량<br>
+              <br>
+              당일 종가 = 전일 종가 이면 <br>
+              OBV = 전일 OBV</p></td>
+        </tr>
+      </table></td>
+  </tr>
+  <tr> 
+    <td height="5">&nbsp;</td>
+  </tr>
+  <tr> 
+    <td><table width="100%" border="0" cellpadding="10" cellspacing="1" bgcolor="D1D5DC">
+        <tr> 
+          <td bgcolor="F3F3F3" style="line-height:140%;"><p><strong><font color="0886B1">3. 
+              적용방법</font></strong><br>
+              <br>
+              <img src="img/n1.gif" width="11" height="11" align="absmiddle"> 
+              OBV가 증가추세일 때를 매수시점으로, OBV가 감소추세일때를 매도시점으로 인식합니다.<br>
+              <img src="img/n2.gif" width="11" height="11" align="absmiddle"> 
+              OBV가 횡보국면이면 추세전환 임박신호로 인식합니다.<br>
+              <img src="img/n3.gif" width="11" height="11" align="absmiddle"> 
+              OBV가 시장가격의 변화보다 먼저 선행하기에 OBV가 상승하면 선도세력들의 자금이 주식시장으로 들어오고 그후 일반 
+              대중들이 시장에 들어오기 때문에 상승국면으로의 전환을 예측할수 있습니다. 주가변동에 앞서 거래량의 증감을 파악함으로써 
+              향후 장세의 예측을 가능하게 해줍니다.</p>
+            </td>
+        </tr>
+      </table></td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+</body>
+
+</html>

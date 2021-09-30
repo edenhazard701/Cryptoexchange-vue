@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UNIVAX - Investing for the future</title>
+    <meta charset="utf-8">
+    <meta http-equiv="Expires" content="-1">
+    <meta http-equiv="Progma" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="icon" href="../favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="./css/css_security.css">
+    <script src="../Library/jquery-2.1.3.js"></script>
+    <script src="../Library/exchain.js"></script>
+
+    <script type="text/javascript">
+        $(function () {
+            $('#loading').show();
+            var getParam = function(key){
+                var _parammap = {};
+                    document.location.search.replace(/\??(?:([^=]+)=([^&]*)&?)/g, function () {
+                    function decode(s) {
+                        return decodeURIComponent(s.split("+").join(" "));
+                    }
+                    _parammap[decode(arguments[1])] = decode(arguments[2]);
+                });
+ 
+                return _parammap[key];
+             };
+  
+            var outBankCd = getParam('outBankCd');
+            $('#outBankCd').val(outBankCd);
+            
+            securityModule({bankId : outBankCd}, function(fwscheck, bankcheck, scrappingData) {
+                if (!fwscheck || !bankcheck) 
+                {
+                    checkValidate(fwscheck,bankcheck,scrappingData);
+                    
+                } else 
+                {
+                    window.opener.$('#CompleteSecure').trigger('click');
+                        
+                    $('#tbody > tr').remove();
+                    $('#subInfo').remove();
+                    $('#tbody').append('<tr class="security-table-info"><td colspan=3>프로그램 설치가 완료 되었습니다.</td></tr>');
+                }
+                $('#loading').hide();
+            }); 
+        
+            /*************************************************************************/
+            /* 새로고침 버튼 클릭 이벤트입니다.                                      
+            /*************************************************************************/
+            $("#btnRefresh").on("click", function(){
+                $('#loading').show();
+                var outBankCd = $('#outBankCd').val();
+                securityModule({bankId : outBankCd}, function(fwscheck, bankcheck, scrappingData) {
+                    if (!fwscheck || !bankcheck) 
+                    {
+                        checkValidate(fwscheck,bankcheck,scrappingData);
+                    } else 
+                    {
+                        window.opener.$('#CompleteSecure').trigger('click');
+
+                        $('#tbody > tr').remove();
+                        $('#subInfo').remove();
+                        $('#tbody').append('<tr class="security-table-info"><td colspan=3>프로그램 설치가 완료 되었습니다.</td></tr>');
+                    }
+                    $('#loading').hide();
+                }); 
+                
+            });
+            
+            /*************************************************************************/
+            /* 취소 버튼 클릭 이벤트입니다.                                          
+            /*************************************************************************/
+            $("#btnCancel").on("click", function(){
+                self.close();
+            });
+        });
+        function checkValidate(fwscheck,bankcheck,scrappingData) {
+            /*************************************************************************/
+            /* FWS 모듈 설치 여부를 확인합니다.                                      
+            /*************************************************************************/
+            if(fwscheck == true){
+                $("#FSWSS_download").hide();
+                $("#FSWSS_ready").show();
+            
+                /*************************************************************************/
+                /* 은행보안 프로그램 설치 여부를 확인합니다.                             
+                /*************************************************************************/
+                if(bankcheck == true){
+                    ;
+                }else{
+                    var scrappingDatas = new Array();
+                    scrappingDatas = JSON.parse(scrappingData);
+                    
+                    $.each( scrappingDatas , function(index, obj) {
+                        var object  = obj.object;
+                        var install = obj.install;
+                        
+                        if(install == "Y"){
+                            $("#" + object ).show();
+                            $("#" + object + "_download").hide();
+                            $("#" + object + "_ready").show();
+                            console.log(object);
+                        }
+                        else
+                        {
+                            $("#" + object ).show();
+                            $("#" + object + "_download").show();
+                            $("#" + object + "_ready").hide();
+                            console.log(object);
+                        }
+                    });
+                }
+                
+            }else
+            {
+                $("#FSWSS_download").show();
+                $("#FSWSS_ready").hide();
+            }
+        }
+    </script>
+</head>
+<body>
+    <from>
+        <section class="el-container PcContainer is-vertical">
+        <input type="hidden" id="outBankCd" value="" />
+        <section class="el-container EtcVue PageCommon">
+            <div class="SecurityProgram">
+                <div class="logo"></div>
+                <div class="security-info">
+                    We proceed a safe transfer the same as in the bank<br>
+                    Install the security program of your bank used
+                </div>
+                <div class="security-table">
+                    <table border="0" cellpadding="0" cellspacing="0">
+                        <colgroup>
+                            <col width="450">
+                            <col>
+                            <col width="140">
+                        </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Program Name</th>
+                            <th>Function</th>
+                            <th>Install</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody">
+                        <tr id="FSWSS">
+                            <td>
+                                Confirm the installation of bank's security program<br>
+                                FSWSS(스크랩핑모듈) Finger Scraping Web Server SSL
+                            </td>
+                            <td>
+                                It is a scrapping module to confirm the installation of security program of your bank with which you will proceed.
+                            </td>
+                            <td>
+                                <div id="FSWSS_download" class="not-install">
+                                    Not installed<br>
+                                    <a href="https://down.finger.co.kr/down/2xchange/FSWSSSetup.exe">
+                                        <button type="button" class="el-button el-button--primary">
+                                            <span>Download</span>
+                                        </button>
+                                    </a>
+                                </div>
+                                <div id="FSWSS_ready" class="install">Completed</div>
+                            </td>
+                        </tr>
+                        <tr id="I3GM" style="display:none;">
+                            <td>
+                                PC Designation Security<br>
+                                I3GManager
+                            </td>
+                            <td>
+                                It is a program to confirm the use of PC designation mode service when transferring.
+                            </td>
+                            <td>
+                                <div id="I3GM_download" class="not-install">
+                                    Not installed<br>
+                                    <a href="https://down.finger.co.kr/down/2xchange/I3GManager.exe">
+                                        <button type="button" class="el-button el-button--primary">
+                                            <span>Download</span>
+                                        </button>
+                                    </a>
+                                </div>
+                                <div id="I3GM_ready" class="install">Completed</div>
+                            </td>
+                        </tr>
+                        <tr id="XWCDataPlugin" style="display:none;">
+                            <td>
+                                Certificate Security<br>
+                                XWCDataPlugin
+                            </td>
+                            <td>
+                                It is a program for electronic sign of login and transaction through the certificate.
+                            </td>
+                            <td>
+                                <div id="XWCDataPlugin_download" class="not-install">
+                                    Not installed<br>
+                                    <a href="https://down.finger.co.kr/down/2xchange/xwcup_install_windows_x86.exe">
+                                        <button type="button" class="el-button el-button--primary">
+                                            <span>Download</span>
+                                        </button>
+                                    </a>
+                                </div>
+                                <div id="XWCDataPlugin_ready" class="install">Completed</div>
+                            </td>
+                        </tr>
+                        <tr id="XW40" style="display:none;">
+                            <td>
+                                Certificate Security<br>
+                                xecureweb
+                            </td>
+                            <td>
+                                It is a program for electronic sign of login and transaction through the certificate.
+                            </td>
+                            <td>
+                                <div id="XW40_download" class="not-install">
+                                    Not installed<br>
+                                    <a href="https://down.finger.co.kr/down/2xchange/xw1.exe">
+                                        <button type="button" class="el-button el-button--primary">
+                                            <span>Download</span>
+                                        </button>
+                                    </a>
+                                </div>
+                                <div id="XW40_ready" class="install">Completed</div>
+                            </td>
+                        </tr>
+                        <tr id="DOL" style="display:none;">
+                            <td>
+                                Certificate Security<br>
+                                Delfino
+                            </td>
+                            <td>
+                                It is a program for electronic sign of login and transaction through the certificate.
+                            </td>
+                            <td>
+                                <div id="DOL_download" class="not-install">
+                                    Not installed<br>
+                                    <a href="https://down.finger.co.kr/down/2xchange/delfino.exe">
+                                        <button type="button" class="el-button el-button--primary">
+                                            <span>Download</span>
+                                        </button>
+                                    </a>
+                                </div>
+                                <div id="DOL_ready" class="install">Completed</div>
+                            </td>
+                        </tr>
+                        <tr id="DOLG3" style="display:none;">
+                            <td>
+                                Certificate Security<br>
+                                Delfino G3
+                            </td>
+                            <td>
+                                It is a program for electronic sign of login and transaction through the certificate.
+                            </td>
+                            <td>
+                                <div id="DOLG3_download" class="not-install">
+                                    Not installed<br>
+                                    <a href="https://down.finger.co.kr/down/2xchange/delfino_g3_sha2.exe" >
+                                        <button type="button" class="el-button el-button--primary">
+                                            <span>Download</span>
+                                        </button>
+                                    </a>
+                                </div>
+                                <div id="DOLG3_ready" class="install">Completed</div>
+                            </td>
+                        </tr>
+                        <tr id="ISW64" style="display:none;">
+                            <td>
+                                Certificate Security<br>
+                                INISAFE6
+                            </td>
+                            <td>
+                                It is a program for electronic sign of login and transaction through the certificate.
+                            </td>
+                            <td>
+                                <div id="ISW64_download" class="not-install">
+                                    Not installed<br>
+                                    <a href="https://down.finger.co.kr/down/2xchange/INIS64.exe">
+                                        <button type="button" class="el-button el-button--primary">
+                                            <span>Download</span>
+                                        </button>
+                                    </a>
+                                </div>
+                                <div id="ISW64_ready" class="install">Completed</div>
+                            </td>
+                        </tr>
+                        <tr id="ASTX" style="display:none;">
+                            <td>
+                                White hat hacking solution<br>
+                                AhnLab Safe Transaction
+                            </td>
+                            <td>
+                                It interrups the falsification of web page by a malicious program, and collects the device information to detect the abnormal transaction such as ilegal access and transaction when doing financial transaction.
+                            </td>
+                            <td>
+                                <div id="ASTX_download" class="not-install">
+                                    Not installed<br>
+                                    <a href="https://down.finger.co.kr/down/2xchange/astxdn.exe" >
+                                        <button type="button" class="el-button el-button--primary">
+                                            <span>Download</span>
+                                        </button>
+                                    </a>
+                                </div>
+                                <div id="ASTX_ready" class="install">Completed</div>
+                            </td>
+                        </tr>
+                        <tr id="TouchEnKey" style="display:none;">
+                            <td>
+                                Keyboard Security<br>
+                                TouchEn Key
+                            </td>
+                            <td>
+                                It is a program that interrupts the outflow of information when inputting with keyboard the information requiring the data protection as in password.
+                            </td>
+                            <td>
+                                <div id="TouchEnKey_download" class="not-install">
+                                    Not installed<br>
+                                    <a href="https://down.finger.co.kr/down/2xchange/TouchEnKey_Installer_x86.exe" >
+                                        <button type="button" class="el-button el-button--primary">
+                                            <span>Download</span>
+                                        </button>
+                                    </a>
+                                </div>
+                                <div id="TouchEnKey_ready" class="install">Completed</div>
+                            </td>
+                        </tr>
+                        <tr id="TouchEnNxKey" style="display:none;">
+                            <td>
+                                Keyboard Security<br>
+                                TouchEnNxKey
+                            </td>
+                            <td>
+                                It is a program that interrupts the outflow of information when inputting with keyboard the information requiring the data protection as in password.
+                            </td>
+                            <td>
+                                <div id="TouchEnNxKey_download" class="not-install">
+                                    Not installed<br>
+                                    <a href="https://down.finger.co.kr/down/2xchange/TouchEn_nxKey_32bit.exe">
+                                        <button type="button" class="el-button el-button--primary">
+                                            <span>Download</span>
+                                        </button>
+                                    </a>
+                                </div>
+                                <div id="TouchEnNxKey_ready" class="install">Completed</div>
+                            </td>
+                        </tr>
+                        <tr id="SCSK" style="display:none;">
+                            <td>
+                                Keyboard Security<br>
+                                SCSK
+                            </td>
+                            <td>
+                                It is a program that interrupts the outflow of information when inputting with keyboard the information requiring the data protection as in password.
+                            </td>
+                            <td>
+                                <div id="SCSK_download" class="not-install">
+                                    Not installed<br>
+                                    <a href="https://down.finger.co.kr/down/2xchange/SCSKInstUserMode.exe">
+                                        <button type="button" class="el-button el-button--primary">
+                                            <span>Download</span>
+                                        </button>
+                                    </a>
+                                </div>
+                                <div id="SCSK_ready" class="install">Completed</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="security-table-info" id="subInfo">
+                    <span class="text"># The above program shall be installed for deposit [Download]. </span>
+                </div>
+            </div>
+            <div class="security-confirm">
+                <div class="label"># Did you finish installing the security program?</div>
+                Click the [confirmation of installation] and check the installation state.
+                <button id="btnRefresh" type="button" class="el-button el-button--info">
+                    <span>Confirm the installation</span>
+                </button>
+            </div>
+        </div>
+        </section>
+    </from>
+
+    <!-- loading -->
+    <div id="loading" class="loading" style="display:none;">
+        <div class="loading-spin"><span class="spin"></span></div>
+        <div class="loading-info">EN 잠시만 기다려 주세요.</div>
+    </div>
+
+</body>
+</html>

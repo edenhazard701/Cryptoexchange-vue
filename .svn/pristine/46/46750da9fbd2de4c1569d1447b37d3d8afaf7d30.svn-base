@@ -1,0 +1,125 @@
+<template>
+  <div v-if="chkApp" class="mobile_app_nav">
+    <ul class="app_nav_lst">
+      <li class="nav_lst01">
+        <router-link to="/exchange" :class="{'on': $route.name === 'mExchange' || $route.name === 'mMain'}">{{$t('m_main.e004')}}<!-- 거래소 --></router-link>
+      </li>
+      <li class="nav_lst03">        
+        <a @click="accCreatePopup('mInvestment')">
+          {{$t('m_main.e006')}}<!-- 투자내역 -->
+        </a>        
+      </li>
+      <li class="nav_lst04" >
+         <a @click="accCreatePopup('mBank')">
+          {{$t('m_main.e007')}}<!-- 입출금 -->
+        </a>          
+      </li>
+      <li class="nav_lst02">
+        <router-link to="/screener" :class="{'on': $route.name === 'mSmartInvest'}">{{$t('m_main.e009')}}<!-- 스크리너 --></router-link>
+      </li>
+      <li class="nav_lst05">
+        <router-link to="/mypage" :class="{'on': $route.name === 'mMyPage'}">{{$t('m_main.e008')}}<!-- 내정보 --></router-link>
+      </li>
+    </ul>
+  </div>
+</template>
+<script>
+import { mapGetters } from 'vuex';
+export default {
+  data() {
+    return {
+      chkApp: false
+    }
+  }, 
+  computed: {
+    ...mapGetters(['isLoggedIn', 'getUnitcode', 'getAuthCi']),
+  },
+  methods : {
+    accCreatePopup(nameTo){
+       let self = this;
+
+       //로그인체크 먼저
+       if (!self.isLoggedIn) {   
+            self.$alert(self.$t('exchange.a017'), '', {  //로그인이 필요한 서비스입니다.
+                confirmButtonText: self.$t('m_login.g014'),
+                callback: function() {
+                  self.$router.push({name: 'mLogin'});
+                }
+            });    
+       };
+       //계좌생성정보 있는지 체크
+       if(self.getAuthCi )
+        self.checkAccCreationInfo(nameTo)    
+       else
+        self.$router.push({name:nameTo}) 
+    },
+  
+    //계좌생성정보 있는지 체크
+    checkAccCreationInfo(nameTo){
+      let self = this;  
+
+      self.$socket.sendProcessByName('ac519', (queryData) => {
+          let block = queryData.getBlockData('InBlock1')[0];
+          block['auth_ci'] = self.getAuthCi
+          console.log("block:" + JSON.stringify(block.auth_ci))
+     }, function (queryData) {
+          if (queryData != null) {
+              let OutBlock1 = queryData['queryObj']['OutBlock1'][0];
+             
+              //계좌생성정보 저장 - 로그인한 상태에서 계좌생성중에 물고다녀야 하는 유저아이디를 사용해야 함
+              self.$store.state.user.userAccCreationInfo = OutBlock1  
+              console.log("userAccCreationInfo:"+JSON.stringify(self.$store.state.user.userAccCreationInfo));  
+              console.log('getUnitCode:', self.getUnitCode); 
+              console.log('getUnitcode:', self.getUnitcode); 
+              console.log('getUnitCodeYN:', self.getUnitcode == '00999'); 
+              //계좌생성된 상태가 아니면
+              if( self.getUnitcode == '00999' )
+              {
+                  self.$confirm('계좌만들기 후 이용 가능합니다.', '', {
+                      confirmButtonText: '계좌만들기',
+                      cancelButtonText: self.$t('m_mypage.k040')                 
+                  }).then(() => {   
+                     //지점코드 저장여부에 따라 계좌만들다 만게 있는지 판단
+                    if( (OutBlock1['unit_code']) != '' ){
+                         self.$router.push({name: 'mAccCreateResume', params:{ci:self.getAuthCi }});   //계좌만들기 이어서 하기
+                    }else
+                    {
+                        self.$router.push({name: 'mAccCreateIntro', params:{ci:self.getAuthCi }});   //계좌만들기 인트로
+                    }   
+                  })
+              }
+              else
+              {
+                  self.$router.push({name:nameTo}) 
+              }         
+                         
+          } else {
+            console.log('계좌생성정보 저장 실패')
+            // 전문 에러 언어팩 적용
+            const errorData = JSON.parse( window.sessionStorage.getItem('lastErrorData') );
+            if (errorData.trName != "ac519") return          
+
+                 if(errorData.errCode == '49044')  //19세 미만 회원가입 시도
+                 {
+                    self.$router.push({name: 'mRegiRefused'});  
+                 }else if(errorData.errCode == '49042') //이미 가입완료된 회원입니다.
+                 {
+                    //회원가입불가 페이지로 이동  
+                    self.$router.push({name: 'mRegiFail'});  
+                 }
+           
+                return;
+          }
+        })      
+    }    
+  },
+  mounted() {   
+    /* 네이티브 앱 체크 */
+    var self = this;
+    if (afc.isDevice) {
+        self.chkApp = true;
+    }
+    console.log('getUnitCode:', self.getUnitCode); 
+  }
+}
+</script>

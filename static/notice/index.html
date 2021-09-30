@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,maximum-scale=1,minimum-scale=1,initial-scale=1,user-scalable=no">
+  <meta http-equiv="Expires" content="-1">
+  <meta http-equiv="Progma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="apple-touch-icon-precomposed" href="/static/apple-icon-114x114.png" type="image/png">
+  <link rel="shortcut icon" href="/static/android-icon-72x72.png" type="image/png">
+  <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+  <title>UNIVAX - 서버 점검 안내</title>  
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>  
+  <section class="PageCommon">
+    <div class="logo">
+      <h1 class="logo-txt">UNIVAX</h1>
+    </div>
+
+    <div class="CommonNotice">
+      <h1 class="notice-tit">서버 점검 안내</h1>
+      <p class="notice-txt">
+안정적인 서비스를 위해 서버 점검을 진행중입니다.<br>해당 기간동안 코벡스의 전체 시스템 사용이 불가하니 참고 바랍니다. 이용에 불편을 드려 죄송합니다.
+      </p>
+      
+      <div class="notice-info" id="info">
+        <!-- <h1 class="info-tit">점검 일정</h1> -->
+      </div>
+
+      <!-- <p class="notice-txt type2">
+      </p> -->
+
+    </div>
+  </section>
+</body>
+</html>
+
+<script>
+//점검중 확인
+var xhr = new XMLHttpRequest();
+xhr.open('POST', '/data/checkServer.php');
+xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+xhr.onload = function() {
+  if (xhr.status === 200 && xhr.responseText != null) {
+    var res = JSON.parse(xhr.responseText);
+    if (res != null ) {
+      if (res["is_checking"] == 'N') {
+        location.href = "/";
+      } else {
+        var htmlTag = "<ul class='info-lst'><li>점검 일시 : " + res["check_datetime"] + "</li>";
+        htmlTag += "<li>점검 내용 : " + res["check_detail"] + "</li></ul>";
+        document.getElementById("info").innerHTML = htmlTag;
+      }
+    }
+  }
+};
+var unitcode = "00001";
+if (location.hostname === "univax.kovex.co.kr") {
+  unitcode = "00001";
+}
+xhr.send('unitcode='+unitcode);
+</script>

@@ -1,0 +1,727 @@
+@charset 'utf-8';
+.popup_wrapper_pc .chart_right_menu > li > a,
+.popup_wrapper_pc .chart_right_menu .menu_depth02_bx .menu_depth02 > li > a{
+    line-height:40px;
+}
+
+.PcContainer {
+    .chart_universal_time > li > a{
+        display: block;
+        font-size:12px;
+        height:30px;
+        line-height:29px;
+        color:#707070;
+        text-indent:35px;
+    }
+    .chart_universal_time > li > a:hover,
+    .chart_universal_time > li > a:active,
+    .chart_universal_time > li > a.checked,
+    .chart_universal_time > li > a.active{
+        background:#f2f3f7 url("../images/chart_ico_check.png") no-repeat 14px center;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .chart_area {
+      background: none;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx{
+        border-left:#3a4950;
+        padding: 3px 0 3px 4px;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu_bx{
+        background-color: #3a4950 !important;
+    }
+    .FullExchange .stock-graph article,
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .cicle_lft {
+        background:none;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx,
+    .FullExchange .stock-graph .chart_cont .chart_btm_area {
+        height: 40px !important;
+        border:0;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx {
+        background:#2b353a;
+        padding:6px 13px 0 10px !important;
+        border-bottom:none;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .cicle_lft .cicle_lft_lst > li > a,
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .minute_lst_bx .btn_minute {
+        color:#707070;
+        background:none;
+        border-color:#475b63;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .cicle_lft .cicle_lft_lst > li > a:hover,
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .minute_lst_bx .btn_minute:hover,
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .signal_rgt > li > a:hover {
+        // line-height:20px !important;
+        background-color:#20262b !important;
+        border-color:#475b63;
+        color:#707070;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .cicle_lft .cicle_lft_lst > li > a.active,
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .minute_lst_bx .btn_minute.active,
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .signal_rgt > li > a.active {
+        color:#fff;
+        // line-height:20px;
+        background-color:#20262b !important;
+        border-color:#212121;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .chart_type01_lft:hover,
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .chart_type01_lft:active{
+        color:#fff;
+        background:#20262b;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .chart_type01_lft:before,
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .chart_type01_lft:hover:before,
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .chart_type01_lft:active:before{
+        background:url("../images/full_chart_arrow_lft_off.png") no-repeat left center;
+    }
+
+    .FullExchange .stock-graph .chart_top_bx .cicle_lft_lst { height:24px; }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .cicle_lft .el-radio-group .el-radio-button { margin-right:5px; }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .cicle_lft .el-radio-group .el-radio-button__inner {
+        height:24px;
+        line-height:22px;
+        background:none;
+        border:1px #475b63 solid;
+        border-radius:2px;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .cicle_lft .el-radio-group .el-radio-button__inner:hover { background:#20262b; }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .cicle_lft .el-radio-group .el-radio-button__orig-radio:checked + .el-radio-button__inner {
+        color:#fff;
+        background:#212121;
+        border-color:#000;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .cicle_lft .el-input-number .el-input__inner {
+        height:30px;
+        background:#2b353a;
+        border-color:#475b63;
+        border-radius:2px;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .cicle_lft .el-input-number .el-input__inner:hover {
+        background:#20262b;
+        border-color:#475b63 !important;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .cicle_lft .el-input-number .el-input__inner:focus { border-color:#8f9da2 !important; }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .cicle_lft .el-input-number .el-input__inner:disabled,
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .cicle_lft .el-input-number .is-disabled .el-input__inner { background:#20262b !important; }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .cicle_lft .el-input-number .el-input-number__increase,
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .cicle_lft .el-input-number .el-input-number__decrease {
+        text-indent:0;
+        border-left:1px #475b63 solid;
+        background:none;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .cicle_lft .el-input-number .el-input-number__increase > i,
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .cicle_lft .el-input-number .el-input-number__decrease > i {
+        width:8px;
+        height:4px;
+        background-repeat:no-repeat;
+        background-size:8px 4px;
+        transform:none;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .cicle_lft .el-input-number .el-input-number__increase > i::before,
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .cicle_lft .el-input-number .el-input-number__decrease > i::before { content:''; }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .cicle_lft .el-input-number .el-input-number__increase > i {
+        background-image:url('../images/full_ico_down.png');
+        transform:rotateZ(180deg);
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .cicle_lft .el-input-number .el-input-number__decrease {
+        bottom:1px;
+        border-radius:0 0 2px 0;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .cicle_lft .el-input-number .el-input-number__decrease > i { background-image:url('../images/full_ico_down.png'); }
+
+    .FullExchange .stock-graph .stock-graph .chart_cont .chart_bx {
+        height:calc(100% - 42px);
+        background:#2b3136;
+        overflow:visible;
+        margin-top:2px;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .minute_lst_bx .minute_slide .minute_slide_lst li.last{
+        border-bottom:1px solid #465b63;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .minute_lst_bx .minute_slide .minute_slide_lst a,
+    .FullExchange .chart_universal_time > li > a,
+    .FullExchange .stock-graph .chart_cont .chart_btm_area .btn_rgt .chart_btm_setting .btn_lnk{
+        color:#9e9e9e !important;
+        background:#38484f;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .minute_lst_bx .minute_slide .minute_slide_lst a:hover,
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .minute_lst_bx .minute_slide .minute_slide_lst a:active{
+        background:#2b353a;
+        color:#fff;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_btm_area .btn_rgt .chart_btm_setting .btn_lnk:hover,
+    .FullExchange .stock-graph .chart_cont .chart_btm_area .btn_rgt .chart_btm_setting .btn_lnk:active,
+    .FullExchange .stock-graph .chart_cont .chart_btm_area .btn_rgt .chart_btm_setting .btn_lnk.active,
+    .FullExchange .chart_universal_time > li > a:hover,
+    .FullExchange .chart_universal_time > li > a:active,
+    .FullExchange .chart_universal_time > li > a.checked,
+    .FullExchange .chart_universal_time > li.checked > a{
+        background:#2b353a url("../images/full_chart_ico_check.png") no-repeat 14px center;
+        color:#fff;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .minute_lst_bx .minute_slide .minute_slide_lst li:last-child{
+        border-bottom:1px solid #465b63;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .minute_lst_bx .minute_slide .input_minute_bx input{
+        background:#38484f;
+        color:#9e9e9e;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .minute_lst_bx .minute_slide .input_minute_bx .sub_slide_bx .btn_select{
+        border-left:1px solid #465b63;
+        color:#9e9e9e;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .minute_lst_bx .minute_slide .input_minute_bx .sub_slide_bx .sub_bx .sub_select_lst li > a{
+        color:#9e9e9e;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .minute_lst_bx .minute_slide .input_minute_bx .sub_slide_bx .btn_select:before{
+        background:url('../images/full_chart_arrow_down.png') no-repeat left top;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_btm_area .btn_rgt > li.setting_lst{
+        padding:11px 0 0 10px;
+    }
+    .FullExchange .stock-graph .chart_top_bx .minute_lst_bx .minute_slide,
+    .FullExchange .stock-graph .chart_top_bx .minute_lst_bx .minute_slide .input_minute_bx .sub_slide_bx .sub_bx,
+    .FullExchange .stock-graph .chart_cont .chart_btm_area .btn_rgt .chart_btm_setting{
+        background:#38484f !important;
+        border:1px solid #465b63 !important;
+        box-shadow: 0px 3px 5px 0 rgba(153, 204, 255, 0.05);
+    }
+    .FullExchange .stock-graph .minute_lst_bx .minute_slide .input_minute_bx .sub_slide_bx .sub_bx .sub_select_lst li > a:hover,
+    .FullExchange .stock-graph .minute_lst_bx .minute_slide .input_minute_bx .sub_slide_bx .sub_bx .sub_select_lst li > a:active{
+        background:#20262b !important;
+        color:#fff !important;
+    }
+    .FullExchange .stock-graph .stock-graph .chart_cont .chart_top_bx .signal_rgt > li {
+        padding:0;
+        margin:0 0 0 5px;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_menu_bx .sidebar_menu > li {
+        border-color:#2b353a;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .minute_lst_bx .minute_slide .input_minute_bx .rgt_btn_bx a{
+        background:#617c89;
+        color:#fff;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .minute_lst_bx .minute_slide .input_minute_bx .rgt_btn_bx{
+        border-left:1px solid #465b63;
+    }
+    .FullExchange .stock-graph .stock-graph .chart_cont .chart_top_bx .signal_rgt > li:first-child{
+        margin:0;
+    }
+    .FullExchange .stock-graph .chart_top_bx .minute_lst_bx .minute_slide .input_minute_bx .sub_slide_bx .sub_bx{
+        background:#38484f !important;
+        border:1px solid #465b63 !important;
+        box-shadow: 0px 3px 5px 0 rgba(153, 204, 255, 0.05);
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .toltip{
+        background:#949696;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .toltip:before{
+        background:url("../images/full_chart_tooltip_arrow.png") no-repeat center;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .signal_rgt > li > a {
+        width:20px;
+        height:20px;
+        text-indent:-9999px;
+        background-repeat:no-repeat !important;
+        background-position:center !important;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .signal_rgt > li > a.btn_alerm {
+        background-image:url('../images/full_chart_rgt01.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .signal_rgt > li > a.btn_alerm:hover{
+        background-image:url('../images/full_chart_rgt01_hover.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .signal_rgt > li > a.btn_alerm.active {
+        background-image:url('../images/full_chart_rgt01_active.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .signal_rgt > li > a.btn_chart {
+        background-image:url('../images/full_chart_rgt02.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .signal_rgt > li > a.btn_chart:hover {
+        background-image:url('../images/full_chart_rgt02_hover.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .signal_rgt > li > a.btn_chart.active {
+        background-image:url('../images/full_chart_rgt02_active.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .signal_rgt > li > a.btn_setting {
+        background-image:url('../images/full_chart_rgt03.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .signal_rgt > li > a.btn_setting:hover {
+        background-image:url('../images/full_chart_rgt03_hover.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .signal_rgt > li > a.btn_setting:active {
+        background-image:url('../images/full_chart_rgt03_active.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .signal_rgt > li > a.btn_expend {
+        background-image:url('../images/full_chart_rgt05.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .signal_rgt > li > a.btn_expend:hover {
+        background-image:url('../images/full_chart_rgt05_hover.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .signal_rgt > li > a.btn_expend.active {
+        background-image:url('../images/full_chart_rgt05_active.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .signal_rgt > li > a.btn_analyze {
+        background-image:url('../images/full_chart_rgt06.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .signal_rgt > li > a.btn_analyze:hover{
+        background-image:url('../images/full_chart_rgt06_hover.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_top_bx .signal_rgt > li > a.btn_analyze.active {
+        background-image:url('../images/full_chart_rgt06_active.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx > .sidebar_menu {
+        background:#2b353a;
+        border:1px #475b63 solid;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx > .sidebar_menu > li {
+        padding:5px 4px;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx > .sidebar_menu > li > a {
+        width:30px;
+        height:30px;
+        border-radius:2px;
+        background:none;
+        background-repeat:no-repeat !important;
+        background-position:center !important;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li > a::before {
+        background:none;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu01 > a {
+        background-image:url('../images/full_chart_side01.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu01 > a:hover{
+        background-image:url('../images/full_chart_side01_hover.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu01.active > a {
+        background-image:url('../images/full_chart_side01_active.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu02 > a {
+        background-image:url('../images/full_chart_side02.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu02 > a:hover{
+        background-image:url('../images/full_chart_side02_hover.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu02.active > a {
+        background-image:url('../images/full_chart_side02_active.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu03 > a {
+        background-image:url('../images/full_chart_side03.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu03 > a:hover{
+        background-image:url('../images/full_chart_side03_hover.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu03.active > a {
+        background-image:url('../images/full_chart_side03_active.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu04 > a {
+        background-image:url('../images/full_chart_side04.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu04 > a:hover{
+        background-image:url('../images/full_chart_side04_hover.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu04.active > a {
+        background-image:url('../images/full_chart_side04_active.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu05 > a {
+        background-image:url('../images/full_chart_side05.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu05 > a:hover{
+        background-image:url('../images/full_chart_side05_hover.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu05.active > a {
+        background-image:url('../images/full_chart_side05_active.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu06 > a {
+        background-image:url('../images/full_chart_side06.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu06 > a:hover{
+        background-image:url('../images/full_chart_side06_hover.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu06.active > a {
+        background-image:url('../images/full_chart_side06_active.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu07 > a {
+        background-image:url('../images/full_chart_side07.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu07 > a:hover{
+        background-image:url('../images/full_chart_side07_hover.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu07.active > a {
+        background-image:url('../images/full_chart_side07_active.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu08 > a {
+        background-image:url('../images/full_chart_side08.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu08 > a:hover{
+        background-image:url('../images/full_chart_side08_hover.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu08.active > a {
+        background-image:url('../images/full_chart_side08_active.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu09 > a {
+        background-image:url('../images/full_chart_side09.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu09 > a:hover{
+        background-image:url('../images/full_chart_side09_hover.png');
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .sidebar_menu > li.menu09.active > a {
+        background-image:url('../images/full_chart_side09_active.png');
+    }
+    .FullExchange .stock-graph .chart_bx .sidebar_menu_bx .sidebar_menu > li.depth02_li > a:before{
+        background:url('../images/full_chart_side_arrow.png') !important;
+    }
+    .FullExchange .stock-graph .chart_bx .sidebar_menu_bx .sidebar_menu > li.depth02_li.active > a:before{
+        background:url('../images/full_chart_side_arrow_active.png') !important;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_btm_area .time_lst > li > a,
+    .FullExchange .stock-graph .chart_cont .chart_btm_area .btn_before_period,
+    .FullExchange .stock-graph .chart_cont .chart_btm_area .btn_rgt > li > a {
+        color:#9e9e9e;
+        line-height:43px;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_btm_area .btn_rgt > li.setting_lst > a {
+        color:#f5f5f5;
+        background:#617c89;
+        border-radius:2px;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .depth02_lst{
+        box-shadow: 0px 3px 5px 0 rgba(153, 204, 255, 0.05);
+        background-color: #3a4950;
+        border:1px solid #475b63;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .depth02_lst > li > a{
+        color:#fff;
+    }
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .depth02_lst > li > a:hover,
+    .FullExchange .stock-graph .chart_cont .chart_bx .sidebar_bx .depth02_lst > li > a:active{
+        background:#2b353a;
+    }
+    
+    .chart_cont .chart_top_bx .cicle_lft,
+    .chart_cont .chart_top_bx .cicle_lft .cicle_lft_lst > li,
+    .chart_cont .chart_top_bx .cicle_lft .cicle_lft_lst > li > a,
+    .chart_cont .chart_top_bx .minute_lst_bx,
+    .chart_cont .chart_top_bx .minute_lst_bx > a,
+    .chart_cont .chart_top_bx .signal_rgt,
+    .chart_cont .chart_top_bx .signal_rgt > li > a {
+        height:24px !important;
+    }
+    .chart_cont .chart_btm_area .time_lst:before,
+    .chart_cont .chart_top_bx .cicle_lft:before,
+    .chart_cont .chart_top_bx .signal_rgt:before,
+    .chart_cont .chart_btm_area .btn_rgt:before{
+        display:block !important;
+        height:auto !important;
+    }
+    .chart_cont .chart_top_bx{
+        height:40px !important;
+        padding:8px 13px 8px 10px !important;
+    }
+    .FullScreenChart .chart_cont .chart_bx,
+    .Exchange .chart_cont .chart_bx{
+        margin-top:4px;
+    }
+    .FullScreenChart .chart_cont .chart_bx .chart_area,
+    .Exchange .chart_cont .chart_bx .chart_area {
+      background: #fff;
+    }
+    .chart_cont .chart_btm_area .btn_rgt > li.setting_lst > a,
+    .chart_cont .chart_top_bx .minute_lst_bx .btn_minute,
+    .chart_cont .chart_top_bx .cicle_lft .cicle_lft_lst > li > a,
+    .chart_cont .chart_top_bx .minute_lst_bx > a {
+        line-height:22px !important;
+    }
+    .chart_cont .chart_top_bx .cicle_lft .cicle_lft_lst > li {
+        margin-right:5px;
+    }
+    .chart_cont .chart_top_bx .cicle_lft .cicle_lft_lst > li > a,
+    .chart_cont .chart_top_bx .minute_lst_bx > a {
+        border:1px #e0e0e0 solid;
+    }
+    .chart_cont .chart_top_bx .cicle_lft .cicle_lft_lst > li > a:hover,
+    .chart_cont .chart_top_bx .minute_lst_bx > a:hover {
+        border-color:#9fa8da;
+        background:#f1f2f7 !important;
+    }
+    .chart_cont .chart_top_bx .cicle_lft .cicle_lft_lst > li > a.active,
+    .chart_cont .chart_top_bx .minute_lst_bx > a.active {
+        border-color:transparent;
+    }
+    .chart_cont .chart_top_bx .cicle_lft .cicle_lft_lst > li > a.active:hover,
+    .chart_cont .chart_top_bx .minute_lst_bx > a.active:hover {
+        background:#3f51b5 !important;
+    }
+    .chart_cont .chart_top_bx .cicle_lft {
+        height:20px !important;
+        margin-top:2px;
+    }
+    .chart_cont .chart_top_bx::before,
+    .chart_cont .chart_top_bx .cicle_lft::before,
+    .chart_cont .chart_top_bx .cicle_lft_lst::before { display:none !important; }
+    .chart_cont .chart_top_bx .cicle_lft_lst,
+    .chart_cont .chart_top_bx .cicle_lft .el-radio-group {
+        position:relative;
+        display:flex;
+        align-items:center;
+    }
+    .chart_cont .chart_top_bx .cicle_lft .el-radio-group .el-radio-button { display:block; }
+    .chart_cont .chart_top_bx .cicle_lft .el-radio-group .el-radio-button__inner {
+        width:40px;
+        height:24px;
+        font-size:12px;
+        color:#707070;
+        text-align:center;
+        line-height:22px;
+        border:1px #e0e0e0 solid;
+        border-radius:2px;
+        padding:0;
+        box-shadow:none;
+        transition:none;
+        margin-right:5px;
+    }
+    .chart_cont .chart_top_bx .cicle_lft .el-radio-group .el-radio-button__inner:hover {
+        border-color:#9fa8da;
+        background:#e4e7f0;
+    }
+    .chart_cont .chart_top_bx .cicle_lft .el-radio-group .el-radio-button__orig-radio:checked + .el-radio-button__inner {
+        color:#fff;
+        border-color:#215ab6;
+        background:#215ab6;
+    }
+    .chart_cont .chart_top_bx .cicle_lft .el-input-number {
+        display:block;
+        width:55px !important;
+        height:30px;
+        margin-left:10px;
+    }
+    .chart_cont .chart_top_bx .cicle_lft .el-input-number .el-input__inner {
+        font-size:12px;
+        padding:0;
+        padding-right:19px;
+    }
+    .chart_cont .chart_top_bx .cicle_lft .el-input-number .el-input-number__decrease,
+    .chart_cont .chart_top_bx .cicle_lft .el-input-number .el-input-number__increase {
+        width:19px;
+        height:14px;
+        text-indent:-9999px;
+        background-color:#fbfcfc;
+        background-repeat:no-repeat;
+        background-position:center;
+        border:0;
+        border-left:1px solid #e1dfe1;
+    }
+    .chart_cont .chart_top_bx .cicle_lft .el-input-number .el-input-number__decrease {
+        bottom:3px;
+        background-image:url('../images/chart_counter_arrow_down.png');
+    }
+    .chart_cont .chart_top_bx .cicle_lft .el-input-number .el-input-number__increase {
+        background-image:url('../images/chart_counter_arrow_up.png');
+    }
+    .chart_cont .chart_top_bx .cicle_lft .el-input-number + .text {
+        display:block;
+        width:auto;
+        font-size:12px;
+        color:#707070;
+        padding:0 10px 0 5px;
+    }
+    .chart_cont .chart_top_bx .cicle_lft .el-select,
+    .chart_cont .chart_top_bx .cicle_lft .el-select .el-input {
+        width:30px;
+    }
+    .chart_cont .chart_top_bx .cicle_lft .el-select .el-input__inner {
+        width:30px;
+        text-indent:-9999px;
+        padding:0;
+        border-radius:2px;
+    }
+    .chart_cont .chart_top_bx .cicle_lft .el-select .el-input__suffix {
+        right:auto !important;
+        left:50%;
+        transform:translateX(-50%);
+    }
+    .chart_cont .chart_btm_area { padding-left:20px !important; }
+    .chart_cont .chart_btm_area .time_lst {
+        position:relative;
+        display:flex;
+        height:40px;
+        align-items:center;
+    }
+    .chart_cont .chart_btm_area .time_lst .el-radio-button {
+        display:block;
+        height:100%;
+        margin-right:20px;
+    }
+    .chart_cont .chart_btm_area .time_lst .el-radio-button:last-child { margin-right:0; }
+    .chart_cont .chart_btm_area .time_lst .el-radio-button .el-radio-button__inner {
+        display:flex;
+        height:100%;
+        border:0;
+        border-radius:0;
+        padding:0;
+        background:none;
+        align-items:center;
+        transition:none;
+        box-shadow:none;
+    }
+    .chart_cont .chart_btm_area .time_lst .el-radio-button .el-radio-button__inner:hover,
+    .chart_cont .chart_btm_area .time_lst .el-radio-button .el-radio-button__orig-radio:checked + .el-radio-button__inner { color:#304ffe; }
+
+    .chart_cont .chart_top_bx .signal_rgt > li {
+        padding-left:5px !important;
+    }
+    .chart_cont .chart_top_bx .signal_rgt > li > a {
+        width:24px !important;
+    }
+    .chart_cont .chart_top_bx .signal_rgt > li > a:hover {
+        border:1px #9fa8da solid;
+        background-color:#f1f2f7 !important;
+    }
+    .chart_cont .chart_top_bx .signal_rgt > li > a.active:hover {
+        border:0;
+        background-color:#3f51b5 !important;
+    }
+    .chart_cont .chart_bx .sidebar_bx {
+        //border:0 !important;
+    }
+    .chart_cont .chart_bx .sidebar_bx .sidebar_menu_bx {
+        position:relative !important;
+    }    
+    .chart_cont .chart_bx .sidebar_bx .toltip{
+        text-align:center !important;
+        border-radius:2px;
+        background:#424242;
+        color:#fff;
+    }
+    .chart_cont .chart_bx .sidebar_bx .toltip:before{
+        background:url("../images/chart_tooltip_arrow.png") no-repeat center;
+    }
+    .chart_cont .chart_bx .sidebar_menu_bx .sidebar_menu > li {
+        border-bottom:1px #e0e0e0 solid;
+    }
+    .chart_cont .chart_bx .sidebar_menu_bx .sidebar_menu > li:last-child {
+        border:0;
+    }
+
+    #NavigatorDiv .btn_char_nav{
+        margin:0 0 0 -110px;
+        width:auto;
+        height:40px;
+        bottom:20px;
+        padding:0 20px;
+        background: rgba(112,112,112,0.1);
+        border-radius:2px;
+    }
+    #NavigatorDiv .btn_char_nav>li{
+        padding:10px 0 0 20px;
+    }
+    #NavigatorDiv .btn_char_nav>li:first-child{
+        padding:10px 0 0 0;
+    }
+    #NavigatorDiv .btn_char_nav>li>a{
+        display:block;
+        width:20px;
+        height:20px;
+        text-indent:-9999px;
+    }
+    #NavigatorDiv .btn_char_nav>li.btn_lft>a{
+        background:url('../images/chart_visual_nav01_off.png') no-repeat left;
+    }
+    #NavigatorDiv .btn_char_nav>li.btn_lft>a:hover{
+        background:url('../images/chart_visual_nav01_on.png') no-repeat left;
+    }
+    #NavigatorDiv .btn_char_nav>li.btn_minus>a{
+        background:url('../images/chart_visual_nav02_off.png') no-repeat left;
+    }
+    #NavigatorDiv .btn_char_nav>li.btn_minus>a:hover{
+        background:url('../images/chart_visual_nav02_on.png') no-repeat left;
+    }
+    #NavigatorDiv .btn_char_nav>li.btn_reset>a{
+        background:url('../images/chart_visual_nav03_off.png') no-repeat left;
+    }
+    #NavigatorDiv .btn_char_nav>li.btn_reset>a:hover{
+        background:url('../images/chart_visual_nav03_on.png') no-repeat left;
+    }
+    #NavigatorDiv .btn_char_nav>li.btn_big>a{
+        background:url('../images/chart_visual_nav04_off.png') no-repeat left;
+    }
+    #NavigatorDiv .btn_char_nav>li.btn_big>a:hover{
+        background:url('../images/chart_visual_nav04_on.png') no-repeat left;
+    }
+    #NavigatorDiv .btn_char_nav>li.btn_rgt>a{
+        background:url('../images/chart_visual_nav05_off.png') no-repeat left;
+    }
+    #NavigatorDiv .btn_char_nav>li.btn_rgt>a:hover{
+        background:url('../images/chart_visual_nav05_on.png') no-repeat left;
+    }
+
+
+
+}
+.MobileContainer{
+    .chart_cont .chart_top_bx{
+        padding:10px 7px 15px !important;
+        height:50px !important;
+    }
+    .chart_cont .sidebar_bx{
+        top:-15px !important;
+    }
+    .chart_cont .chart_area{
+        height:calc(100% - 50px) !important;
+    }
+    .chart_cont .chart_area.depth_chart {
+        height: 100% !important;
+    }
+    .SmartSignalExpertHistory .chart_cont .chart_area{
+        height:calc(100% - 35px) !important;
+    }
+}
+
+.chart-select .el-select-group > .el-select-dropdown__item {
+    height:28px;
+    line-height:28px;
+}
+.chart-select .el-select-group__wrap:not(:last-of-type)::after {
+    left:0;
+    right:0;
+}
+.chart-select .el-select-dropdown__list { padding-bottom:0; }
+.chart-select .el-select-group > .el-select-dropdown__item.hover { background-color:#f1f2f7; }
+.chart-select .el-select-dropdown__list > .el-select-dropdown__item {
+    height:30px;
+    padding:0 !important;
+}
+.chart-select .el-select-dropdown__list > .el-select-dropdown__item.hover { background:none; }
+.chart-select .el-select-dropdown__list > .el-select-dropdown__item > .el-button {
+    width:100%;
+    color:#707070;
+    font-family:Dotum, sans-serif;
+    font-weight:400;
+    border-radius:0;
+    border:0;
+    background:#e5e8f1;
+}
+.chart-select .el-select-dropdown__list > .el-select-dropdown__item > .el-button:hover { background:#c6cbd8; }
+
+.chart_top_bx .cicle_lft .el-input-number .el-input-number__decrease.is-disabled {
+  cursor: default;
+}
+
+.chart_top_bx .cicle_lft .el-input-number .el-input-number__increase.is-disabled {
+  cursor: default;
+}
+
+.chart_top_bx .cicle_lft .el-input.is-disabled .el-input__inner {
+  cursor: default;
+}
+
+.chart_top_bx .cicle_lft .el-input-number.is-disabled .el-input-number__increase {
+  cursor: default;
+}
+
+.chart_top_bx .cicle_lft .el-input-number.is-disabled .el-input-number__decrease {
+  cursor: default;
+}

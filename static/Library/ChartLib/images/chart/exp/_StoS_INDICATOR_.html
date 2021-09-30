@@ -1,0 +1,84 @@
+<html><head><title>SystemTradingHelp</title>
+<style type="text/css">
+body,td {font-family: "돋움", "Arial", "Verdana";	font-size: 12px;}
+
+font.link { color: blue; text-decoration: underline; CURSOR: hand }
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head>
+
+<BODY leftmargin="10" topmargin="10" marginwidth="10" marginheight="10">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr> 
+    <td>Stochastics slow</td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td><table width="100%" border="0" cellpadding="10" cellspacing="1" bgcolor="D1D5DC">
+        <tr> 
+          <td bgcolor="F3F3F3" style="line-height:140%;"><p><strong><font color="0886B1">1. 
+              의미</font></strong><br>
+              <br>
+              Stochastics는 적용기간 중에 움직인 가격 범위에서 오늘의 시장가격이 상대적으로 어디에 위치하고 있는지를 알려주는 
+              지표로써, 시장가격이 상승추세에 있다면 현재가격은 최고가 부근에 위치할 가능성이 높고, 하락추세에 있다면 현재가는 
+              최저가 부근에서 형성될 가능성이 높다는 것에 착안하여 만들어진 지표입니다. <br>
+            </p></td>
+        </tr>
+      </table></td>
+  </tr>
+  <tr> 
+    <td height="5">&nbsp;</td>
+  </tr>
+  <tr> 
+    <td><table width="100%" border="0" cellpadding="10" cellspacing="1" bgcolor="D1D5DC">
+        <tr> 
+          <td valign="top" bgcolor="F3F3F3" style="line-height:140%;"> <p><strong><font color="0886B1">2. 
+              계산식 </font></strong></p>
+            <p> <img src="img/n1.gif" width="11" height="11" align="absmiddle"> 
+              Stochastics Fast 계산식<br>
+              %K={(당일종가-최근 n일동안의 최저가)/(최근 n일동안의 최고가-최근 n일동안의 최저가)} * 100<br>
+              %D= %K를 n일간 지수이동평균한값</p>
+            <p> <img src="img/n2.gif" width="11" height="11" align="absmiddle"> 
+              Stochastics Slow 계산식<br>
+              K={(당일종가-최근 n일동안의 최저가)/(최근 n일동안의 최고가-최근 n일동안의 최저가)} * 100<br>
+              %K= K를 n일간 지수이동평균한값<br>
+              %D= %K를 n일간 지수이동평균한값</p></td>
+        </tr>
+      </table></td>
+  </tr>
+  <tr> 
+    <td height="5">&nbsp;</td>
+  </tr>
+  <tr> 
+    <td><table width="100%" border="0" cellpadding="10" cellspacing="1" bgcolor="D1D5DC">
+        <tr> 
+          <td bgcolor="F3F3F3" style="line-height:140%;"><p><strong><font color="0886B1">3. 
+              적용방법</font></strong><br>
+              <br>
+              <img src="img/n1.gif" width="11" height="11" align="absmiddle"> 
+              지표값이 80이상일때를 매도시점으로, 20이하일때를 매수시점으로 인식합니다.<br>
+              <img src="img/n2.gif" width="11" height="11" align="absmiddle"> 
+              %K선과 %D선의 교차시점을 매매에 이용할수 있습니다.
+              %K선이 %D선을 상향돌파할때를 매수시점으로, 하향돌파할때를 매도시점으로 인식합니다. <br>
+              <img src="img/n3.gif" width="11" height="11" align="absmiddle"> 
+              이때에 많은 Whipsaw(눈속임)가 발생하게 되는데, 이에 대한 보완책으로 %K값이 70이상인 시점에서 %K선이 
+              %D선을 하향돌파 할 때 매도시점으로 하고, %K값이 30이하인 시점에서 %K선이 %D선을 상향돌파 할때를 매수시점으로 
+              인식하면 됩니다.<br>
+              <img src="img/n4.gif" width="11" height="11" align="absmiddle"> 
+              주가와 Stochastics값 사이의 Divergence를 이용한 분석이 가능합니다.<br>
+              주가의 저점은 점점 낮아지는데, Stochastics값의 저점이 점점 높아지면 추세의 상승반전을 예상할수 있습니다.
+              반대로, 주가의 고점은 점점 높아지는데, Stochastics값의 고점은 점점 낮아지면 추세의 하락반전을 예상할수 
+              있습니다.</p>
+            </td>
+        </tr>
+      </table></td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+</body>
+
+</html>

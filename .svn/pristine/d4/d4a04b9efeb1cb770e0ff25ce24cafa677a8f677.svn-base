@@ -1,0 +1,178 @@
+@charset "utf-8";
+@import url('https://fonts.googleapis.com/css?family=Noto+Sans+KR:300,400,500');
+@import url('https://fonts.googleapis.com/css?family=Roboto:100,300,400,500');
+
+* {
+    font-family:Roboto, 'Noto Sans KR', sans-serif;
+    font-size:14px;
+    font-weight:400;
+}
+
+html,body {
+    height:100%;
+    margin:0;
+    padding:0;
+    background:#fff;
+}
+.el-container {
+    position:relative;
+    display:flex;
+    height:100%;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+}
+.SecurityProgram {
+    position:relative;
+    width:1040px;
+    margin:0 auto;
+}
+.SecurityProgram .logo {
+    position:relative;
+    width:338px;
+    height:60px;
+    background:url('../images/security_kovex_logo.png') no-repeat;
+    margin:0 auto;
+}
+.SecurityProgram .security-info {
+    font-size:20px;
+    color:#616161;
+    font-weight:300;
+    text-align:center;
+    line-height:35px;
+    margin-top:30px;
+}
+.SecurityProgram .security-table {
+    border-top:2px #464748 solid;
+    border-bottom:1px #c6c6c6 solid;
+    margin-top:40px;
+}
+.SecurityProgram .security-table table {
+    width:100%;
+}
+.SecurityProgram .security-table th {
+    height:40px;
+    font-weight:400;
+    color:#212121;
+    border-bottom:1px #909090 solid;
+}
+.SecurityProgram .security-table td {
+    font-weight:300;
+    border-bottom:1px #e3e3e3 solid;
+    border-right:1px #e3e3e3 solid;
+    padding:15px 20px;
+}
+.SecurityProgram .security-table td:last-child {
+    border-right:0;
+}
+.SecurityProgram .security-table tr:last-child {
+    border-bottom:0;
+}
+.SecurityProgram .security-table .not-install {
+    color:#9e9e9e;
+    text-align:center;
+}
+.SecurityProgram .security-table .install {
+    color:#212121;
+    text-align:center;
+}
+.SecurityProgram .security-table .el-button {
+    width:100px;
+    height:30px;
+    font-size:14px;
+    color:#fff;
+    font-weight:300;
+    line-height:28px;
+    border:2px transparent solid;
+    border-radius:4px;
+    background:#3f51b5;
+    cursor:pointer;
+}
+.SecurityProgram .security-table .el-button:hover {
+    font-weight:400;
+    border-color:#283593;
+}
+.SecurityProgram .security-table-info {
+    color:#304efe;
+    text-align:center;
+    line-height:50px;
+    background:#f4f6ff;
+}
+.SecurityProgram .security-table-info .text {
+    display:inline-block;
+    line-height:normal;
+    border-bottom:1px rgba(97,97,97,0.5) solid;
+}
+.SecurityProgram .security-confirm {
+    position:relative;
+    color:#616161;
+    font-weight:300;
+    margin-top:25px;
+}
+.SecurityProgram .security-confirm .label {
+    font-size:20px;
+    font-weight:300;
+    color:#212121;
+}
+.SecurityProgram .security-confirm .el-button {
+    width:80px;
+    height:30px;
+    font-size:14px;
+    color:#616161;
+    font-weight:300;
+    line-height:30px;
+    border:1px #e0e0e0 solid !important;
+    background:#fff;
+    padding:0;
+    margin-left:10px;
+}
+.SecurityProgram .security-confirm .el-button:hover {
+    font-weight:400;
+    border-color:#9e9e9e !important;
+    background:#f5f5f5;
+}
+
+.loading {
+    position:absolute;
+    display:-webkit-box;
+    display:-ms-flexbox;
+    display:flex;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(255,255,255,0.7);
+    padding-bottom:100px;
+    box-sizing:border-box;
+    -webkit-box-align:center;
+    -webkit-box-pack:center;
+    -ms-flex-align:center;
+    -ms-flex-pack:center;
+    -ms-flex-direction:column;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+}
+.loading .loading-spin {
+    position:relative;
+    display:block;
+}
+.loading .loading-spin .spin {
+    position:relative;
+    display:inline-block;
+    width:80px;
+    height:80px;
+    background:url('../images/loading.png') no-repeat;
+    background-size:100%;
+    animation:spin 3s linear infinite;
+}
+.loading .loading-info {
+    position:relative;
+    font-size:16px;
+    color:#212121;
+    margin-top:20px;
+}
+@keyframes spin {
+    0%  {transform: rotate(0deg);}
+    100% {transform: rotate(360deg);}
+}

@@ -1,0 +1,72 @@
+<html><head><title>SystemTradingHelp</title>
+<style type="text/css">
+body,td {font-family: "돋움", "Arial", "Verdana";	font-size: 12px;}
+
+font.link { color: blue; text-decoration: underline; CURSOR: hand }
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head>
+
+<BODY leftmargin="10" topmargin="10" marginwidth="10" marginheight="10">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr> 
+    <td>TRIX</td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td><table width="100%" border="0" cellpadding="10" cellspacing="1" bgcolor="D1D5DC">
+        <tr> 
+          <td bgcolor="F3F3F3" style="line-height:140%;"><p><strong><font color="0886B1">1. 
+              의미</font></strong><br>
+              <br>
+              종가에 대하여 지수 이동평균을 세 번 구한 후 이 값의 전일대비 상승률을 이용한 지표입니다.<br>
+            </p></td>
+        </tr>
+      </table></td>
+  </tr>
+  <tr> 
+    <td height="5">&nbsp;</td>
+  </tr>
+  <tr> 
+    <td><table width="100%" border="0" cellpadding="10" cellspacing="1" bgcolor="D1D5DC">
+        <tr> 
+          <td valign="top" bgcolor="F3F3F3" style="line-height:140%;"> <p><strong><font color="0886B1">2. 
+              계산식 </font></strong></p>
+            <p> 종가의 해당기간 (n)지수 이동 평균값을 구한다. 구한 이동평균 값을 다시 해당기간 (n)지수 이동평균 값을 구한다. 
+              구한 이동평균 값을 다시 해당기간 (n)지수 이동평균 값을 구한다 이값의 당일의변동분.[(당일-전일)/전일]*100<br>
+              시그널선 = TRIX의 n일 지수이동평균<br>
+              기본설정값: 12일, 시그널선: 9일</p>
+            </td>
+        </tr>
+      </table></td>
+  </tr>
+  <tr> 
+    <td height="5">&nbsp;</td>
+  </tr>
+  <tr> 
+    <td><table width="100%" border="0" cellpadding="10" cellspacing="1" bgcolor="D1D5DC">
+        <tr> 
+          <td bgcolor="F3F3F3" style="line-height:140%;"><p><strong><font color="0886B1">3. 
+              적용방법</font></strong><br>
+              <br>
+              <img src="img/n1.gif" width="11" height="11" align="absmiddle"> 
+              지표값의 반전시점을 매매에 이용합니다. 상승 반전될 때를 매수시점, 하락 반전될 때를 매도시점으로 인식합니다.<br>
+              <img src="img/n2.gif" width="11" height="11" align="absmiddle"> 
+              지표값이 시그널선을 상향 돌파할때를 매수시점으로, 하향돌파할때를 매도시점으로 인식합니다.<br>
+              <img src="img/n3.gif" width="11" height="11" align="absmiddle"> 
+              주가와 지표값 사이의 Divergence를 이용한 분석이 가능합니다.<br>
+              주가의 저점은 점점 낮아지는데, 지표값의 저점이 점점 높아지면 추세의 상승반전을 예상할수 있습니다.<br>
+              반대로, 주가의 고점은 점점 높아지는데, 지표값의 고점은 점점 낮아지면 추세의 하락반전을 예상할수 있습니다.</p>
+            </td>
+        </tr>
+      </table></td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+</body>
+
+</html>

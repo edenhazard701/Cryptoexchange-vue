@@ -1,0 +1,185 @@
+@charset "utf-8";
+@import url('https://fonts.googleapis.com/css?family=Roboto:100,300,400,500');
+@import url('https://fonts.googleapis.com/css?family=Noto+Sans+KR:300,400&subset=korean');
+
+* {
+    font-family:Roboto, 'Noto Sans KR', sans-serif;
+    font-weight:400;
+    color:#616161;
+    box-sizing:border-box;
+}
+
+html, body {
+    width:100%;
+    height:100%;
+    margin:0;
+    padding:0;
+    background:#fff;
+}
+
+ul, li {
+    display:block;
+    list-style:none;
+    margin:0;
+    padding:0;
+}
+p { margin:0; padding:0; }
+
+a, a:hover, a:visited, a:active { text-decoration:none; }
+
+.wrap {
+    position:relative;
+    display:fixed;
+    display:-webkit-box;
+    display:-ms-flexbox;
+    width:100%;
+    height:100%;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    -webkit-box-align:center;
+    -webkit-box-pack:center;
+    -webkit-box-orient:vertical;
+    -ms-flex-align:center;
+    -ms-flex-pack:center;
+    -ms-flex-direction:column;
+}
+
+.logo {
+    position:relative;
+    width:226px;
+    height:40px;
+    text-indent:-9999px;
+    background:url('../images/m_kovex_logo.png') center no-repeat;
+    background-size:100%;
+}
+
+.browser-check-lst {
+    text-align:center;
+    margin-top:40px;
+}
+.browser-check-lst p {
+    position:relative;
+    display:inline-block;
+    font-size:20px;
+    color:#212121;
+    line-height:35px;
+    text-align:left;
+    padding-left:15px;
+}
+.browser-check-lst p::before {
+    content:'';
+    position:absolute;
+    display:block;
+    top:50%;
+    left:0;
+    width:4px;
+    height:4px;
+    background:#616161;
+    transform:translateY(-50%);
+    -webkit-transform:translateY(-50%);
+    -ms-transform:translateY(-50%);
+}
+.browser-check-lst p > span { color:#212121; }
+.browser-check-lst .mobile { display:none; }
+.browser-check-lst .pc { display:inline; }
+
+.homepage-lnk-lst {
+    position:relative;
+    display:flex;
+    display:-webkit-box;
+    display:-ms-flexbox;
+    margin-top:50px;
+}
+.homepage-lnk-lst .mobile { display:none; }
+.homepage-lnk-lst .pc { display:block; }
+.homepage-lnk-lst > div {
+    position:relative;
+    width:160px;
+    font-size:14px;
+    text-align:center;
+    padding-top:143px;
+    margin:0 85px;
+    background-repeat:no-repeat;
+    background-position:center top;
+}
+.homepage-lnk-lst .chrome { background-image:url('../images/ico_browser_chrome.png'); }
+.homepage-lnk-lst .edge { background-image:url('../images/ico_browser_edge.png'); }
+.homepage-lnk-lst .explorer { background-image:url('../images/ico_browser_ie.png'); }
+.homepage-lnk-lst a {
+    position:relative;
+    display:block;
+    width:140px;
+    height:30px;
+    font-weight:300;
+    text-align:center;
+    line-height:30px;
+    border:1px #e0e0e0 solid;
+    border-radius:4px;
+    margin:20px auto 0;
+}
+.homepage-lnk-lst a:hover {
+    font-weight:400;
+    border-color:#9e9e9e;
+    background:#f5f5f5;
+}
+
+.btn-bx {
+    position:relative;
+    margin-top:80px;
+}
+.btn-bx a {
+    position:relative;
+    display:block;
+    width:160px;
+    height:40px;
+    font-weight:300;
+    color:#fff;
+    text-align:center;
+    line-height:40px;
+    border:2px transparent solid;
+    border-radius:4px;
+    background:#3f51b5;
+}
+.btn-bx a:hover {
+    font-weight:400;
+    border-color:#283593;
+}
+
+@media screen and (max-width:1023px) {
+    .logo {
+        width:157px;
+        height:28px;
+    }
+    .browser-check-lst { margin-top:30px; }
+    .browser-check-lst > p {
+        font-size:14px;
+        line-height:25px;
+        padding:0;
+        text-align:center;
+    }
+    .browser-check-lst > p::before { display:none; }
+    .browser-check-lst .br { display:block; }
+    .browser-check-lst .pc { display:none; }
+    .browser-check-lst .mobile { display:inline; }
+    .homepage-lnk-lst { margin-top:55px; }
+    .homepage-lnk-lst .mobile { display:block; }
+    .homepage-lnk-lst .pc { display:none; }
+    .homepage-lnk-lst > div {
+        width:102px;
+        margin:0;
+        padding-top:63px;
+        background-size:60px;
+    }
+    .homepage-lnk-lst .safari { background-image:url('../images/m_breoser02.png'); background-size:55px; }
+    .homepage-lnk-lst .samsung { background-image:url('../images/m_breoser03.png'); background-size:53px; }
+    .btn-bx { margin-top:46px; }
+    .btn-bx a {
+        width:auto;
+        height:35px;
+        font-size:13px;
+        line-height:32px;
+        border-radius:0;
+        padding:0 20px;
+    }
+}

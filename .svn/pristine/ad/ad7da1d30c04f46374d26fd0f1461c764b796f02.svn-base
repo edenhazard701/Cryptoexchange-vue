@@ -1,0 +1,74 @@
+<html><head><title>SystemTradingHelp</title>
+<style type="text/css">
+body,td {font-family: "돋움", "Arial", "Verdana";	font-size: 12px;}
+
+font.link { color: blue; text-decoration: underline; CURSOR: hand }
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head>
+
+<BODY leftmargin="10" topmargin="10" marginwidth="10" marginheight="10">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr> 
+    <td>Bollinger Bands</td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td><table width="100%" border="0" cellpadding="10" cellspacing="1" bgcolor="D1D5DC">
+        <tr> 
+          <td bgcolor="F3F3F3" style="line-height:140%;"><p><strong><font color="0886B1">1. 
+              의미</font></strong><br>
+              <br>
+              Bollinger Bands의 상, 하한선은 표준 편차에 의해 산출된 이동평균 값이며 주가나 지수의 움직임이 큰 시기에는 
+              Bands의 폭이 넓어지고 움직임이 작은 시기에는 Bands의 폭이 좁아지는 특성을 가지고 있습니다. 따라서, 가격 
+              움직임의 크기에 따라 밴드의 넓이가 결정됩니다.</p>
+            </td>
+        </tr>
+      </table></td>
+  </tr>
+  <tr> 
+    <td height="5">&nbsp;</td>
+  </tr>
+  <tr> 
+    <td><table width="100%" border="0" cellpadding="10" cellspacing="1" bgcolor="D1D5DC">
+        <tr> 
+          <td valign="top" bgcolor="F3F3F3" style="line-height:140%;"> <p><strong><font color="0886B1">2. 
+              계산식 </font></strong></p>
+            <p> 중간밴드 n일 단순이동평균<br>
+              상향밴드 = n일 단순이동평균+ 2 * 표준편차<br>
+              하향밴드 = n일 단순이동평균- 2 * 표준편차<br>
+              <br>
+              기본설정값: 20일</p>
+            </td>
+        </tr>
+      </table></td>
+  </tr>
+  <tr> 
+    <td height="5">&nbsp;</td>
+  </tr>
+  <tr> 
+    <td><table width="100%" border="0" cellpadding="10" cellspacing="1" bgcolor="D1D5DC">
+        <tr> 
+          <td bgcolor="F3F3F3" style="line-height:140%;"><p><strong><font color="0886B1">3. 
+              적용방법</font></strong><br>
+              <br>
+              <img src="img/n1.gif" width="11" height="11" align="absmiddle"> 
+              주가가 상위밴드에 도달하면 매도시점, 하위밴드에 도달하면 매수시점으로 인식합니다.<br>
+              하지만, 추세가 형성되지 않으면 가격변동성이 작아져 밴드의 폭이 좁아지므로 매매하기가 곤란해진다는 단점도 있습니다. 
+              <br>
+              <img src="img/n2.gif" width="11" height="11" align="absmiddle"> 
+              주가가 중간선에 위치하고있을 경우 상위밴드는 저항선, 중간선은 지지선으로 작용하며, 주가가 중간선 아래에 있는 경우에는 
+              하위밴드가 지지선 역할을 하며 중간선이 저항선으로 작용합니다.</p>
+            </td>
+        </tr>
+      </table></td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+</body>
+
+</html>

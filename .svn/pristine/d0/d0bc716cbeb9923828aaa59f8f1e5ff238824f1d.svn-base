@@ -1,0 +1,73 @@
+<html><head><title>SystemTradingHelp</title>
+<style type="text/css">
+body,td {font-family: "돋움", "Arial", "Verdana";	font-size: 12px;}
+
+font.link { color: blue; text-decoration: underline; CURSOR: hand }
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head>
+
+<BODY leftmargin="10" topmargin="10" marginwidth="10" marginheight="10">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr> 
+    <td>Linear Regression Slope(직선회귀 기울기)</td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td><table width="100%" border="0" cellpadding="10" cellspacing="1" bgcolor="D1D5DC">
+        <tr> 
+          <td bgcolor="F3F3F3" style="line-height:140%;"><p><strong><font color="0886B1">1. 
+              의미</font></strong><br>
+              <br>
+              Linear Regression Indicator(회귀선지표)와 동일한 방법으로 과거 일정기간을 대상으로 매일 직선회귀선을 
+              계산하고 각 일자의 직선회귀 기울기를 이어서 지표화한 것이 직선회귀기울기입니다.<br>
+              직선회귀기울기는 단위기간변화에 따라 가격이 얼마나 변화할 것으로 기대되는지를 보여줍니다.</p></td>
+        </tr>
+      </table></td>
+  </tr>
+  <tr> 
+    <td height="5">&nbsp;</td>
+  </tr>
+  <tr> 
+    <td><table width="100%" border="0" cellpadding="10" cellspacing="1" bgcolor="D1D5DC">
+        <tr> 
+          <td bgcolor="F3F3F3" style="line-height:140%;"><p><strong><font color="0886B1">2. 
+              계산식</font></strong><br>
+              <br>
+              Y = A + BX<br>
+              A = 1/N (∑Y - B*∑X)<br>
+              B = (N*∑XY-∑X*∑Y) / (N*∑X²-(∑X)² )<br>
+              X : 시간흐름<br>
+              N : 기간 (기본값 14)<br>
+              Y : LRL(Liner Regression Line)<br>
+              B : LRS(Liner Regression Slope)<br>
+            </p></td>
+        </tr>
+      </table></td>
+  </tr>
+  <tr> 
+    <td height="5">&nbsp;</td>
+  </tr>
+  <tr> 
+    <td><table width="100%" border="0" cellpadding="10" cellspacing="1" bgcolor="D1D5DC">
+        <tr> 
+          <td bgcolor="F3F3F3" style="line-height:140%;"><p><strong><font color="0886B1">3. 
+              적용방법</font></strong><br>
+              <br>
+              직선회귀기울기를 해석할 경우 R-squared를 동시에 분석하는 것이 좋습니다.</p>
+            <p>이는 직선회귀기울기가 추세의 대략적인 방향을 제시하는 반면 R-squared는 추세의 강도에 관련된 정보를 제공하기 
+              때문입니다. R-squared값이 높다는 것은 직선회귀기울기가 가파른 상승 혹은 하락 기울기를 가짐을 의미합니다..<br>
+              직선회귀기울기가 처음으로 의미있는 양의 값을 갖게되는 시점을 매수포지션 설정시점으로 활용할 수 있습니다. 반면 기울기가 
+              의미있는 하락기울기로 변하게 되는 시점을 매수포지션을 청산하거나 매도포지션을 설정하는 시점으로 활용할 수 있습니다.</p></td>
+        </tr>
+      </table></td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+</body>
+
+</html>

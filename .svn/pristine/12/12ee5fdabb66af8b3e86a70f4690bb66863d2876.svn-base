@@ -1,0 +1,435 @@
+<template>
+    <el-main class="bank-account-main">
+    <!-- 회원가입 이용약관 -->
+     <div style="display:block; padding-top:20px;">
+        <div>
+          <div style="text-align:center;">
+              <el-checkbox  
+                            v-model="showCheckAll"  
+                            @change="handleCheckAllChange(checkAll)" 
+                            border
+                            label="거래소 이용약관 전체 동의"
+                            size = "medium"
+                            style="border:1px solid;color:#3f50b4;line-height:36px;font-size:16px"
+                          >
+              </el-checkbox>
+          </div>
+        <div >
+        <!-- 회원가입용 -->
+        <ul v-if="termFrom != 'BranchSelect'">
+          <li style="margin:30px">
+             <el-row>
+                <input type="checkbox" name="checkedItems1" @click="showTermsCondition()" class="checkbox" />
+                <label for="checkedItems1" > {{ '이용약관 동의 [필수]' }}</label>
+                <el-button size="mini" @click="termVisible = true" style="background-color:#3f50b4;color:white;float:right;margin-right: 10px;">{{"보기" }}</el-button>
+              </el-row>            
+          </li>
+          <li  style="margin:30px">        
+              <el-row>
+                <input type="checkbox" name="checkedItems2" @click="showTermsCondition()" class="checkbox" />
+                <label for="checkedItems2" > {{ '개인정보 수집 및 이용동의 [필수]' }}</label>
+                <el-button size="mini" @click="privacyInfoVisible = true" style="background-color:#3f50b4;color:white;float:right;margin-right: 10px;">{{ "보기" }}</el-button>
+               </el-row>          
+          </li>
+          <li  style="margin:30px">         
+              <el-row>
+                <input type="checkbox" name="checkedItems3" @click="showTermsCondition()" class="checkbox" />
+                <label for="checkedItems3" > {{ '마케팅 정보 수신 동의 [선택]' }}</label>
+                <el-button size="mini" @click="marketingVisible = true" style="background-color:#3f50b4;color:white;float:right;margin-right: 10px;">{{ "보기" }}</el-button>
+              </el-row>          
+          </li>
+        </ul>
+        <!-- 계좌만들기용 -->
+        <ul v-else-if="termFrom == 'BranchSelect'">
+          <li style="margin:30px">
+             <el-row>
+                <input type="checkbox" name="checkedItems4" @click="showTermsCondition()" class="checkbox" />
+                <label for="checkedItems4" > {{ '개인정보 수집 및 이용동의 [필수]' }}</label>
+                <el-button size="mini" @click="accPrivacyInfoCollectVisible = true" style="background-color:#3f50b4;color:white;float:right;margin-right: 10px;">{{"보기" }}</el-button>
+              </el-row>            
+          </li>
+          <li  style="margin:30px">        
+              <el-row>
+                <input type="checkbox" name="checkedItems5" @click="showTermsCondition()" class="checkbox" />
+                <label for="checkedItems5" > {{ '개인정보처리방침 [필수]' }}</label>
+                <el-button size="mini" @click="accPrivacyInfoVisible = true" style="background-color:#3f50b4;color:white;float:right;margin-right: 10px;">{{ "보기" }}</el-button>
+               </el-row>          
+          </li>
+          <li  style="margin:30px">         
+              <el-row>
+                <input type="checkbox" name="checkedItems6" @click="showTermsCondition()" class="checkbox" />
+                <label for="checkedItems6" > {{ '고유식별번호처리 동의 [선택]' }}</label>
+                <el-button size="mini" @click="accDriverNoVisible = true" style="background-color:#3f50b4;color:white;float:right;margin-right: 10px;">{{ "보기" }}</el-button>
+              </el-row>          
+          </li>
+        </ul>
+      </div>
+      </div>
+      <!-- 회원가입용 -->
+        <!-- 이용약관 dialog 팝업// -->
+        <el-dialog class="full_pop" :title="$t('m_signup.a021')" :visible.sync="termVisible" fullscreen>       
+          <div class="registration_pop_cont" v-html="policyConts"></div>  
+        </el-dialog>     
+        <!-- 개인정보 수집이용 동의 dialog 팝업// -->
+        <el-dialog class="full_pop" :title="$t('m_signup.a025')" :visible.sync="privacyInfoVisible" fullscreen>        
+          <div class="registration_pop_cont" v-html="privacyConts"></div>  
+        </el-dialog>     
+        <!-- 마케팅정보수신 dialog 팝업// -->
+        <el-dialog class="full_pop" :title="$t('m_signup.a024')" :visible.sync="marketingVisible" fullscreen>        
+          <div class="registration_pop_cont" v-html="marketingConts"></div>  
+        </el-dialog>
+      
+      <!-- 계좌만들기용 -->
+        <!-- 개인정보 수집이용 동의 dialog 팝업// -->
+        <el-dialog class="full_pop" :title="$t('m_signup.a025')" :visible.sync="accPrivacyInfoCollectVisible" fullscreen>       
+          <div class="registration_pop_cont" v-html="accPrivacyInfoCollectAgreeConts"></div>  
+        </el-dialog>      
+        <!-- 개인정보처리방침 dialog 팝업// -->
+        <el-dialog class="full_pop" :title="$t('m_signup.a023')" :visible.sync="accPrivacyInfoVisible" fullscreen>        
+          <div class="registration_pop_cont" v-html="accPrivacyInfoAgreeConts"></div>  
+        </el-dialog>     
+        <!-- 고유식별번호처리 dialog 팝업// -->
+        <el-dialog class="full_pop" :title="$t('m_signup.a026')" :visible.sync="accDriverNoVisible" fullscreen>        
+          <div class="registration_pop_cont" v-html="accDriverNoAgreeConts"></div>  
+        </el-dialog>
+      
+      <div class="btm_fix_btn">
+        <el-button  class="b_success_btn"   @click.native.prevent="termAgreeNext" :disabled="termAgreeNextDisabled">다음</el-button>
+      </div>
+    </div>
+  </el-main>  
+</template>
+
+<script>
+import { mapGetters } from 'vuex'
+import { termsList } from '@/api/customers';
+export default {
+  components: {
+  },
+  data() {
+
+    return {
+      regiTermTitle: "이용 동의",
+
+      termVisible: false,      
+      privacyInfoVisible: false,
+      marketingVisible: false,     
+      accPrivacyInfoCollectVisible: false,
+      accPrivacyInfoVisible: false,
+      accDriverNoVisible: false,
+
+      policyConts: '추후 내용 추가됩니다.',
+      privacyConts: '추후 내용 추가됩니다.',
+      marketingConts: '추후 내용 추가됩니다.',
+      accPrivacyInfoCollectAgreeConts:'추후 내용 추가됩니다.',
+      accPrivacyInfoAgreeConts:'추후 내용 추가됩니다.',
+      accDriverNoAgreeConts:'추후 내용 추가됩니다.',
+      
+      termAgreeNextDisabled:true,
+      userId:'',    
+      checkAll: true,
+      showCheckAll:false,
+    
+      termFrom:'RegiIntro'
+     
+    }
+  },
+  methods: {
+    //이용동의 전체 선택
+    handleCheckAllChange(val) {
+      let self = this;
+      self.showCheckAll = val;   
+      self.checkAll = !val;         
+      
+      if(self.termFrom === 'RegiIntro')
+      {
+          if(self.checkAll == false)
+          {
+            document.getElementsByName('checkedItems1')[0].checked = true
+            document.getElementsByName('checkedItems2')[0].checked = true
+            document.getElementsByName('checkedItems3')[0].checked = true      
+
+            self.termAgreeNextDisabled = false
+          }else
+          {
+            document.getElementsByName('checkedItems1')[0].checked = false
+            document.getElementsByName('checkedItems2')[0].checked = false
+            document.getElementsByName('checkedItems3')[0].checked = false
+          
+            self.termAgreeNextDisabled = true
+          }
+
+      }else if(self.termFrom === 'BranchSelect')
+      {
+          if(self.checkAll == false)
+          {
+            document.getElementsByName('checkedItems4')[0].checked = true
+            document.getElementsByName('checkedItems5')[0].checked = true
+            document.getElementsByName('checkedItems6')[0].checked = true      
+
+            self.termAgreeNextDisabled = false
+          }else
+          {
+            document.getElementsByName('checkedItems4')[0].checked = false
+            document.getElementsByName('checkedItems5')[0].checked = false
+            document.getElementsByName('checkedItems6')[0].checked = false
+          
+            self.termAgreeNextDisabled = true
+          }
+      }    
+  
+    },
+
+    //약관 처리
+    showTermsCondition() {    
+
+      if(this.termFrom === 'RegiIntro')
+      {
+          let chkAgree1 = document.getElementsByName('checkedItems1')[0].checked;
+          let chkAgree2 = document.getElementsByName('checkedItems2')[0].checked;
+          let chkAgree3 = document.getElementsByName('checkedItems3')[0].checked;
+
+          if(chkAgree1 == false || chkAgree2 == false || chkAgree3 == false  )         
+          {          
+              this.showCheckAll = false
+          }else
+          {        
+              this.showCheckAll = true
+          }
+          
+          if(chkAgree1 == true && chkAgree2 == true)         
+          {
+              this.termAgreeNextDisabled = false
+          }else
+          {
+              this.termAgreeNextDisabled = true
+          }
+
+      }else if(this.termFrom === 'BranchSelect')
+      {          
+          let chkAgree4 = document.getElementsByName('checkedItems4')[0].checked;
+          let chkAgree5 = document.getElementsByName('checkedItems5')[0].checked;
+          let chkAgree6 = document.getElementsByName('checkedItems6')[0].checked;
+
+          if(chkAgree4 == false || chkAgree5 == false || chkAgree6 == false  )         
+          {           
+              this.showCheckAll = false
+          }else
+          {          
+              this.showCheckAll = true
+          }
+          
+          if(chkAgree4 == true && chkAgree5 == true)         
+          {
+              this.termAgreeNextDisabled = false
+          }else
+          {
+              this.termAgreeNextDisabled = true
+          }
+      }
+
+     
+    },
+    //계좌만들기에서만 저장
+    saveTerms(chkAgree4,chkAgree5,chkAgree6)
+    {
+      let self = this;  
+      
+      //약관정보등록 -ac121 은 계좌만들기용
+      self.$socket.sendProcessByName('ac121', (queryData) => {
+          let block = queryData.getBlockData('InBlock1')[0];
+          block['user_id'] = self.userId                
+          block['use_terms'] = Number(chkAgree4)
+          block['prv_info_proc'] = Number(chkAgree5)               
+          block['event_noti'] = Number(chkAgree6)
+          console.log("block:" + JSON.stringify(block))
+      }, function (queryData) {
+          if (queryData != null) {
+
+              let result = queryData['queryObj']['OutBlock1'][0].dummy; 
+              console.log("result:"+ result)
+              //약관정보등록 성공시 이동
+                                    
+              self.$store.state.user.registration.use_terms1 =  Number(chkAgree4)
+              self.$store.state.user.registration.use_terms2 =  Number(chkAgree5)
+              self.$store.state.user.registration.use_terms3 =  Number(chkAgree6)
+
+              console.log("use_terms1:"+ self.$store.state.user.registration.use_terms1)
+              console.log("use_terms2:"+ self.$store.state.user.registration.use_terms2)
+              console.log("use_terms3:"+ self.$store.state.user.registration.use_terms3)
+
+              //가상자산인증서 소개 및 발급안내
+              self.$router.push({name: 'mIdSubmit'});                
+              
+              
+          } else {
+            // 전문 에러 언어팩 적용
+            const errorData = JSON.parse( window.sessionStorage.getItem('lastErrorData') );
+            if (errorData.trName != "ac121") return
+
+            self.$alert(self.$t('sys_err.' + errorData.errCode), '', {
+                dangerouslyUseHTMLString: true,
+                confirmButtonText: self.$t('sys_err.a001')
+            });
+          }
+        })     
+    },
+
+    termAgreeNext() {
+      let self = this;
+
+      //이용동의 체크가 통과 되면 '인증서 소개 및 인증서 고객 구분'으로 이동
+      let isOk = false;   
+      let chkAgree1 = ''
+      let chkAgree2 = ''
+      let chkAgree3 = ''
+      let chkAgree4 = ''
+      let chkAgree5 = ''
+      let chkAgree6 = ''      
+
+      if(self.termFrom === 'RegiIntro')
+      {
+        chkAgree1 = document.getElementsByName('checkedItems1')[0].checked;
+        chkAgree2 = document.getElementsByName('checkedItems2')[0].checked;
+        chkAgree3 = document.getElementsByName('checkedItems3')[0].checked;
+
+        if(chkAgree1 == true && chkAgree2 == true) {
+          isOk = true;
+        }
+      }else if(self.termFrom === 'BranchSelect')
+      {         
+        chkAgree4 = document.getElementsByName('checkedItems4')[0].checked;
+        chkAgree5 = document.getElementsByName('checkedItems5')[0].checked;
+        chkAgree6 = document.getElementsByName('checkedItems6')[0].checked;
+
+        if(chkAgree4 == true && chkAgree5 == true) {
+          isOk = true;
+        }
+      }
+
+      if(isOk) 
+      {            
+        if( self.termFrom === 'RegiIntro')
+        {
+            self.$store.state.user.registration.use_terms1 =  Number(chkAgree1)
+            self.$store.state.user.registration.use_terms2 =  Number(chkAgree2)
+            self.$store.state.user.registration.use_terms3 =  Number(chkAgree3)
+
+            console.log("use_terms1:"+ self.$store.state.user.registration.use_terms1)
+            console.log("use_terms2:"+ self.$store.state.user.registration.use_terms2)
+            console.log("use_terms3:"+ self.$store.state.user.registration.use_terms3)
+
+            //인증서 소개 및 인증서 고객 구분
+            self.$router.push({name: 'mMyKeepInIntro'});             
+        }     
+        else if(self.termFrom === 'BranchSelect')   
+        {
+            self.saveTerms(chkAgree4,chkAgree5,chkAgree6)
+        }      
+        else if(typeof(self.termFrom) === 'undefined' || self.termFrom == '')
+        {               
+        }
+      
+      } else {
+        var sTitle = self.$t('필수 이용약관동의에 동의해 주세요.');
+        self.$alert(sTitle, '', {
+          confirmButtonText: self.$t('확인')//'확인'
+        });
+      }
+    },
+
+    getPolicy() {
+			let self = this;
+			termsList({
+				langType: self.getLangKind=='EN'?'en':'ko',
+        unitcode: self.getUnitcode
+			}).then(res => {
+        if (res.code == 20000) {
+          let termsData = res.body;
+          for (var i = 0; i < termsData.length; i ++) {
+            if (termsData[i].termsTp == '1') {  //[회원가입]이용약관
+              self.policyConts = termsData[i].conts;
+            } else if (termsData[i].termsTp == '5') { //[회원가입]개인정보 수집이용 동의
+              self.privacyConts = termsData[i].conts;
+            } else if (termsData[i].termsTp == '4') { //[회원가입]마케팅 정보수신 
+              self.marketingConts = termsData[i].conts;     
+            } else if (termsData[i].termsTp == '6') { //[계좌만들기]개인정보 수집이용 동의
+              self.accPrivacyInfoCollectAgreeConts = termsData[i].conts;
+            } else if (termsData[i].termsTp == '2') { //[계좌만들기]개인정보 처리방침
+              self.accPrivacyInfoAgreeConts = termsData[i].conts;            
+            } else if (termsData[i].termsTp == '7') { //[계좌만들기]고유식별번호처리 동의
+              self.accDriverNoAgreeConts = termsData[i].conts;
+            }
+
+          }
+        }
+			}) 
+    },
+
+  },
+  computed: {
+    ...mapGetters(['getLangKind', 'getUnitcode']),
+    isDevice() {
+      return afc.isDevice;
+    }
+  },
+  mounted(){      
+      let self = this;  
+      self.termFrom = self.$store.state.user.termFrom      
+      self.userId = self.$store.state.user.userAccCreationInfo.user_id
+      console.log("termFrom:"+self.termFrom)      
+      console.log("ac106userId:"+  self.userId );     
+      self.getPolicy() 
+  },
+  created() {
+      let self = this;
+      self.$EventBus.$emit("mobile-nav-title", "약관동의");
+      self.$EventBus.$emit('mobile-nav-menus', ['back','noDefault','border','close']);
+  }
+}
+</script>
+<style>
+ .agree_wrap {
+  margin: 30px 0 0;
+  font-size: 14px;
+  color: #212121;
+ }
+ .all_agree {
+   display: block;
+   margin-top: 20px;
+   padding: 15px 10px;
+   background: #f5f5f5;
+   font-size: 14px;
+   color: #212121;
+ }
+ .area {
+   width: 300px;
+   padding: 15px 10px;
+   background: #f5f5f5;
+   font-size: 14px;
+   color: #212121;
+   margin: 20px 0 0 40px;
+ }
+ .watch_btn {
+   display: inline-block;
+   position: absolute;
+   right: auto;
+   width: 60px;
+   height: 30px;
+   padding: 0;
+   font-size: 11px;
+   color: #212121;
+   text-align: center;
+   font-weight: 300;
+   line-height: 30px;
+   border: 1px solid #e0e0e0;
+   border-radius: 2px;
+
+   white-space: nowrap;
+   cursor: pointer;
+   background: #FFF;
+   box-sizing: border-box;
+   outline: 0;
+   margin: 0;
+ }
+</style>

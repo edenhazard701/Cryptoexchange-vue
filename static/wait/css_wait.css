@@ -1,0 +1,122 @@
+@charset "utf-8";
+/*
+@import url('https://fonts.googleapis.com/css?family=Noto+Sans+KR:300,400,500');
+@import url('https://fonts.googleapis.com/css?family=Roboto:100,300,400,500');
+*/
+
+html, body {
+    margin:0;
+    padding:0;
+    height:100%;
+}
+#Wait {
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:#fff;
+    z-index:99999;
+}
+#Wait .wait-container {
+    position:relative;
+    display:-webkit-box;
+    display:-ms-flexbox;
+    display:flex;
+    width:100%;
+    height:100%;
+    /* font-family:Roboto, 'Noto Sans KR', sans-serif; */
+    font-family:'맑은 고딕','malgun' !important;
+    font-size:14px;
+    color:#212121;
+    line-height:normal !important;
+    -webkit-box-align:center;
+    -webkit-box-pack:center;
+    -ms-flex-align:center;
+    -ms-flex-pack:center;
+    -ms-flex-direction:column;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+}
+#Wait .wait-container .logo .logo-txt{
+    display:block;
+    width:226px;
+    height:40px;
+    text-indent:-9999px;
+    background:url('./kovex_logo.png') no-repeat center top;
+    background-size:100%;
+    margin:0 auto;
+}
+#Wait .wait-container .loading-bx {
+    position:relative;
+    text-align:center;
+    padding-top:90px;
+}
+#Wait .wait-container .loading-bx .spin {
+    position:relative;
+    display:inline-block;
+    width:80px;
+    height:80px;
+    animation:spin 3s linear infinite;
+    background:url('./loading.png') no-repeat;
+    background-size:100%;
+}
+#Wait .wait-container .time-txt{
+    padding:90px 0 0;
+    font-size:20px;
+    line-height:28px;
+    text-align:center;
+}
+#Wait .wait-container .server-txt{
+    padding:20px 0 0;
+    text-align:center;
+    font-weight:300;
+    color:#616161;
+}
+#Wait .wait-container .eng_txt{
+    padding:50px 40px 0;
+}
+#Wait .wait-container .eng_txt .eng-top-txt{
+    font-weight:400;
+    text-align:center;
+    font-size:14px;
+    line-height:22px;
+}
+#Wait .wait-container .eng_txt > .server-txt span {
+    display:block;
+    line-height:25px;
+}
+@keyframes spin {
+    0%  {transform: rotate(0deg);}
+    100% {transform: rotate(360deg);}
+}
+
+@media screen and (min-width:320px) and (max-width:1080px) {
+    #Wait .wait-container .logo { width:100%; }
+    #Wait .wait-container .logo .logo-txt{
+        width:100%;
+        height:28px;
+        background-size:157px 28px;
+    }
+    #Wait .wait-container .loading-bx {
+        padding-top:35px;
+    }
+    #Wait .wait-container .loading-bx .spin {
+        width:60px;
+        height:60px;
+    }
+    #Wait .wait-container .time-txt {
+        padding-top:32px;
+    }
+    #Wait .wait-container .server-txt {
+        font-size:13px;
+        font-weight:400;
+        line-height:20px;
+    }
+    #Wait .wait-container .server-txt span {
+        display:block;
+        line-height:20px;
+        text-align:center;
+    }
+}

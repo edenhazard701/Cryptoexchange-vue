@@ -1,0 +1,1108 @@
+<template>
+  <div id="app">
+    <pc-container v-if="isPC"></pc-container>
+    <mobile-container v-else></mobile-container>
+    
+    <!-- 코인 상장 팝업 -->
+    <el-dialog :title="newStockStart ? '코인 거래시작 안내' : '코인 상장 안내'" :visible.sync="visibleNewStock" class="NewStock" :before-close="handleClose">
+      <el-scrollbar :class="{'is-scroll': newStockList.length > 7}">
+        <div class="new-stock-info">
+          <ul>
+            <li v-if="newStockStart" class="value">신규 상장종목의 거래가 시작되었습니다.</li>
+            <li>상장종목 :
+              <span :class="{'value': !newStockStart}">{{ newStockList.length }}종목</span>
+            </li>
+            <li v-if="!newStockStart">거래시작 :
+              <span class="value">{{ newStockDate }}</span>
+            </li>
+          </ul>
+        </div>
+        <div class="new-stock-list">
+          <ul>
+            <li v-for="(item, idx) in newStockList" :key="'newStock'+idx">{{ idx+1 }}. {{ nameFormat(item) }} ({{ item.o_inst_eng_abbr }})</li>
+          </ul>
+        </div>
+      </el-scrollbar>
+      <div slot="footer" class="dialog-footer">
+        <div v-if="newStockStart">
+          <el-button @click="closeNewStock">닫기</el-button>
+          <el-button type="primary" @click="goExchange">거래소로 이동</el-button>
+        </div>
+        <el-button v-else type="primary" @click="closeNewStock" :class="{'mobile-ok': !isPC}">확인</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 관리자메세지 팝업 (MSGP) -->
+    <el-dialog :title="dataMSGP.title" :visible.sync="isAdminMSGP" :top="isPC?'30vh':''" :before-close="handleClose" class="NewStock">
+      <div class="new-stock-info">{{dataMSGP.cntnt}}</div>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="closeMSGP" :class="{'mobile-ok': !isPC}">확인</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 관리자메세지 팝업 (MSGU) -->
+    <el-dialog :title="dataMSGU.title" :visible.sync="isAdminMSGU1" :top="isPC?'30vh':''" :before-close="handleClose" class="NewStock">
+      <div class="new-stock-info">{{dataMSGU.content}}</div>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="closeMSGU" :class="{'mobile-ok': !isPC}">확인</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 관리자메세지 서버점검 (MSGU) -->
+    <el-dialog :title="dataMSGU.title" :visible.sync="isAdminMSGU2" :top="isPC?'30vh':''" :show-close="false" :before-close="handleClose" class="NewStock">
+      <div class="new-stock-info">{{dataMSGU.content}}</div>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="closeMSGU" :class="{'mobile-ok': !isPC}">확인</el-button>
+      </div>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+import { mapState, mapGetters, mapActions } from "vuex";
+import { _ } from "vue-underscore";
+import MobileDetect from "mobile-detect";
+import PcContainer from "./views/components/PcContainer.vue";
+import MobileContainer from "./views/mobile/common/MobileContainer.vue";
+import { duration } from "moment";
+
+export default {  
+  components: {
+    PcContainer,
+    MobileContainer,
+  },
+  data() {
+    return {
+      unitcode: process.env.UNITCODE, //00001
+      name: "app",
+      timer: null,
+      isPC: true,
+      realFlag: false,
+      realCount: 0,
+      itemId: "",
+      collapsed: false,
+      sysUserName: "",
+      sysUserAvatar: "",
+      form: {
+        name: "",
+        region: "",
+        date1: "",
+        date2: "",
+        delivery: false,
+        type: [],
+        resource: "",
+        desc: ""
+      },
+      visibleNewStock: false, // 코인 상장 팝업
+      newStock: false, // 팝업 노출 여부
+      newStockStart: false /* 거래 시작 여부 */,
+      newStockList: [],
+      newStockDate: "",
+      newSymbolKVS3: [],
+      oldSymbolKVS3: [],
+      dataLoaded: false,
+      toastUserId: null,
+      isRegisterRealPush: true, //푸쉬등록여부
+      isAdminMSGP: false,       //관리자메세지 팝업 (MSGP)
+      dataMSGP: {},             //관리자메세지 (MSGP)
+      isAdminMSGU1: false,      //관리자메세지 팝업 (MSGU)
+      isAdminMSGU2: false,      //관리자메세지 팝업 (MSGU)
+      dataMSGU: {},             //관리자메세지 (MSGU)
+
+      //임시 타이틀
+      titleMap: {
+        '00999': 'KOVEX',  //계좌만들기전
+        '00001': 'KOVEX',
+        '00002': 'UNIVAX1',
+        '00003': 'UNIVAX2',
+      }
+    };
+  },
+  computed: {
+    ...mapState({
+      currentSymbol: state => state.data.currentSymbol,
+      currentPayCurrCode: state => state.data.currentPayCurrCode,
+      i0018QryDiv: state => state.data.i0018QryDiv,
+      trSymbols: state => state.data.trSymbols
+    }),
+    ...mapGetters([
+      "getUserId",
+      "getSesnId",
+      "notifyOrder",
+      "isLoggedIn",
+      "hogaUnit",
+      "getLangKind"
+    ]),
+    socketConnected() {
+      return this.$store.getters.isSocketConnected;
+    }
+  },
+  watch: {
+    socketConnected(val, old) {
+      var self = this;
+
+      self.$EventBus.$emit("resetLoadStockData");
+
+      if (val) {
+        self.sendQuery("n1001", { i_qrydiv: "0" }, false, obj => {
+          if (obj != null) {
+
+            //지원가능한 코인 반환              
+            var enableCoins = self.$_.filter(obj["data"], i => {
+              // console.log("enableCoin: symbole:"+i.o_inst_eng_abbr+ " state:"+self.isEnableCoin(i.o_inst_eng_abbr));
+              return self.isEnableCoin(i.o_inst_eng_abbr);
+            });
+
+            self.$store.state.data["n1001"] = enableCoins; //store의 'n1001' 저장값을 enableCoins 값으로 변경
+            //지원가능한 코인 반환
+
+            if (!self.$store.state.data.currentSymbol) {
+              //디폴트 종목은 가장 첫번째 종목
+              if (enableCoins.length > 0) {
+                self.$store.commit('setCurrentSymbol', enableCoins[0].o_symbol);
+              }
+            }
+
+            self.$store.state.data.trSymbols = self.$_.pluck(obj["data"], "o_symbol");
+
+            // 상장예정종목 가져오기
+            var list = self.$_.filter(obj["data"], i => {
+              return i.o_exch_list_tp == "0";
+            });
+
+            // 최초 한번만 상장예정종목 등록
+            if (!self.newStockStart) {
+              self.newStockList = list;
+            }
+
+            self.newSymbolKVS3 = [];
+            if (self.newStockList.length > 0) {
+              self.newStockDate = self.getDate(self.newStockList[0].o_exch_list_dtm);
+              self.newStockList.forEach(function(item) {
+                self.newSymbolKVS3.push(item.o_symbol);
+              });
+            }
+
+            // KVS5 KVS4 KVS3 마스터정보 조회후 팝업 노출로 변경
+            if (self.newStock) {
+              self.openNewStock();
+            }
+
+            self.getHogaUnit();
+            self.fetchCurCodeList();
+            self.fetchCoinList();
+
+            //로그인상태인 경우 두번 처리되는 경우가 있어 isRegisterRealPush 값을 소켓연결시점에 false로 변경
+            self.isRegisterRealPush = false;
+            if (self.getUserId) {
+              //self.fetchBookmarkedSymbols();
+              self.registerToastNotifications();
+            }
+
+            self.dataLoaded = false;
+            self.$EventBus.$emit("loadStockData");
+            self.$EventBus.$emit("socketConnected");
+          }
+        });
+
+        //관리자메세지 실시간 데이터 등록
+        self.$socket.registerReal("MSGU", "key_unit_code", [self.unitcode], self.name, self.onMSGUNotification);
+      }
+    },
+    currentPayCurrCode(val, old) {},
+    isLoggedIn: function(val, oldVal) {
+      let self = this;
+      if (self.$store.getters.isSocketConnected) {
+        if (val) {
+          //registerToastNotifications 함수가 자동로그인 상태에서 두번 호출되지만 최초값이 true이기 때문에 실행 안됨
+          self.registerToastNotifications();
+        } else {
+          self.unregisterToastNotifications();
+          //로그아웃시 isRegisterRealPush 값을 false로 변경하여 다음 로그인시 처리되도록 함
+          self.isRegisterRealPush = false;
+        }
+      }
+    }
+  },
+  methods: {
+    ...mapActions([
+      "getHogaUnit",
+      "fetchCurCodeList",
+      "fetchCoinList",
+      "fetchBookmarkedSymbols",
+    ]),
+    getDate(dtm) {
+      var dt = new Date(
+        dtm.substr(0, 4) +
+          "/" +
+          dtm.substr(4, 2) +
+          "/" +
+          dtm.substr(6, 2) +
+          " " +
+          dtm.substr(8, 2) +
+          ":" +
+          dtm.substr(10, 2)
+      );
+      var week = new Array("일", "월", "화", "수", "목", "금", "토");
+      var day = week[dt.getDay()];
+      var hour = dt.getHours();
+      if (hour >= 0 && hour < 13) {
+        hour = "오전 " + hour;
+      } else {
+        hour = "오후 " + (hour - 12);
+      }
+      return (
+        dtm.substr(0, 4) +
+        "년 " +
+        parseInt(dtm.substr(4, 2)) +
+        "월 " +
+        parseInt(dtm.substr(6, 2)) +
+        "일(" +
+        day +
+        ") " +
+        hour +
+        "시 " +
+        dtm.substr(10, 2) +
+        "분"
+      );
+    },
+    setSymbol(id) {
+      // 관심종목에서 선택한 아이템 아이디 값 세팅
+      this.itemId = id;
+      console.log("Exchange.vue > setSymbol > id : " + this.itemId);
+    },
+    sendQuery(name, params, currentData, callback) {
+      let self = this;
+      this.$store
+        .dispatch("sendProcessByName", {
+          name: name,
+          params: params,
+          needSave: true,
+          currentData: currentData
+        })
+        .then(obj => {
+          if (callback != null) {
+            callback(obj);
+          }
+        });
+    },
+    requestCurrentKrPrice(marketCode) {
+      var self = this;
+
+      // 마스터종목에서 대상, 결제 코드를 가지고 심볼코드를 가져온다
+
+      var symbol = _.findWhere(self.$store.state.data["n1001"], { o_setl_cur_cd_n: 'KRW', o_trgt_cur_cd_n: marketCode });
+      if (symbol) {
+        symbol = symbol.o_symbol;
+      } else {
+        return;
+      }
+
+      // var symbol = "";
+      // if (marketCode == "BTC") {
+      //   symbol = "KR001BTC__KRW__";
+      // }
+      // if (marketCode == "ETH") {
+      //   symbol = "KR001ETH__KRW__";
+      // }
+      
+      self.$socket.sendProcessByName(
+        "i0018",
+        function(queryData) {
+          var block = queryData.getBlockData("InBlock1")[0];
+          block["symbolcnt"] = "1";
+          block["qry_div"] = "4";
+          block["paycurrcode"] = "99999";
+          block["excode"] = "001";
+          var block2 = queryData.queryObj["InBlock2"];
+          block2.push({
+            symbol: symbol
+          });
+        },
+        function(queryData) {
+          if (queryData != null) {
+            var OutBlock1 = queryData["queryObj"]["OutBlock2"][0];
+            if (marketCode == "BTC") {
+              self.$store.state.data.currentBtcKrPrice = parseFloat(OutBlock1.curprc);
+            }
+            if (marketCode == "ETH") {
+              self.$store.state.data.currentEthKrPrice = parseFloat(OutBlock1.curprc);
+            }
+            self.$EventBus.$emit("currentKrPrice", OutBlock1);
+          } else {
+            // 전문 에러 언어팩 적용
+            const errorData = JSON.parse( window.sessionStorage.getItem('lastErrorData') );
+            if (errorData.trName != "i0018") return
+
+            self.$alert(self.$t('sys_err.' + errorData.errCode), '', {
+                dangerouslyUseHTMLString: true,
+                confirmButtonText: self.$t('sys_err.a001')
+            });
+          }
+        }
+      );
+    },
+    requestCurrentKrPriceReal(marketCode) {
+      var self = this;
+
+      // 마스터종목에서 대상, 결제 코드를 가지고 심볼코드를 가져온다
+      var symbol = _.findWhere(self.$store.state.data["n1001"], { o_setl_cur_cd_n: 'KRW', o_trgt_cur_cd_n: marketCode });
+      if (symbol) {
+        symbol = symbol.o_symbol;
+      } else {
+        return;
+      }
+      
+      // var symbol = "";
+      // if (marketCode == "BTC") {
+      //   symbol = "KR001BTC__KRW__";
+      // }
+      // if (marketCode == "ETH") {
+      //   symbol = "KR001ETH__KRW__";
+      // }
+
+      self.$socket.registerReal("KVS0", "symbol", [symbol], self.name, function(queryData) {
+        var data = queryData.queryObj.OutBlock1[0];
+        if (marketCode == "BTC") {
+          self.$store.state.data.currentBtcKrPrice = parseFloat(data.execprice);
+        }
+        if (marketCode == "ETH") {
+          self.$store.state.data.currentEthKrPrice = parseFloat(data.execprice);
+        }
+        self.$EventBus.$emit("currentKrPrice", queryData);
+      });
+    },
+    getOnlyNumber(value) {
+      // 숫자, . 만 남김
+      if (value === undefined || value === "") {
+        return;
+      }
+
+      if (value === 0) {
+        return 0;
+      }
+
+      value = value.replace(/[^0-9.]/g, "");
+      // 정수 앞쪽의 0 제거
+      var splitValue = value.split(".");
+      if (splitValue.length > 1) {
+        value =
+          (parseInt(splitValue[0], 10) > 0
+            ? parseInt(splitValue[0], 10)
+            : "0") +
+          ("." + splitValue[1]);
+      } else if (splitValue.length <= 1 && value != "0") {
+        value = value.replace(/^[0|\D]*/, "");
+      }
+
+      return value;
+    },
+    registerToastNotifications() {
+
+      //2019.4.30 LJH, 자동로그인 영역에서 한번더 호출함
+      if (this.isRegisterRealPush) {
+        return;
+      }
+      this.isRegisterRealPush = true;
+
+      let self = this;
+      self.toastUserId = self.getUserId;
+
+      if (!afc.isDevice) {
+        self.$socket.registerReal("KVF0", "user_id", [self.getUserId], "App", self.onKVF0Notification);
+        //console.log("KVF0 실시간 등록 @App.vue ::::: 사용자 id " + self.getUserId);
+      }
+
+      //2019.4.25 LJH, 리얼데이터 푸쉬 등록
+      self.$socket.registerRealPush(self.getUserId);
+
+      self.$socket.registerReal("RB03", "key_user_id", [self.getUserId], "App", self.onRB03Notification);
+      //console.log("RB03 실시간 등록 @App.vue ::::: 사용자 id " + self.getUserId);
+
+      //관리자메세지 등록
+      self.$socket.sendXtLoginData(self.getUserId, self.getSesnId);
+      
+      console.log("getUserId:"+self.getUserId)
+      console.log("getSesnId:"+self.getSesnId)
+
+      //원장 로그인세션 등록
+      self.$socket.sendProcessByName('ac195', function (queryData) { //ac120->ac195
+        var block = queryData.getBlockData('InBlock1')[0];
+        block['user_id'] = self.getUserId;
+        block['sesn_id'] = self.getSesnId;
+      }, null);
+
+      self.$socket.registerReal("MSGP", "key_user_id", [self.getUserId], "App", self.onMSGPNotification);
+      console.log("MSGP 실시간 등록 @App.vue ::::: 사용자 id " + self.getUserId, self.getSesnId);
+    },
+    unregisterToastNotifications() {
+      let self = this;
+
+      if (!afc.isDevice) {
+        self.$socket.unregisterReal("KVF0", [self.toastUserId], "App");
+        //console.log("KVF0 실시간 해제 @App.vue ::::: 사용자 id " + self.toastUserId);
+      }
+
+      self.$socket.unregisterReal("RB03", [self.toastUserId], "App");
+      //console.log("RB03 실시간 해제 @App.vue ::::: 사용자 id " + self.toastUserId);
+
+      //관리자메세지 해지
+      self.$socket.unregisterReal("MSGP", [self.toastUserId], "App");
+      console.log("MSGP 실시간 해제 @App.vue ::::: 사용자 id " + self.toastUserId);
+      
+      //2019.4.25 LJH, 리얼데이터 푸쉬 해지
+      self.$socket.unregisterRealPush(self.toastUserId);
+    },
+    // 토스트 : 알림설정
+    onKVF0Notification(data) {
+      let res = data.getBlockData("OutBlock1")[0];
+      console.log("onKVF0Notification", res);
+      if (res.gb !== "P") {
+        //알림등록인 경우
+        if (res.gb === "R") {
+          //StockDisplay.vue에서 받음
+          console.log(res.symbol);
+          this.$EventBus.$emit("pc-insertNoti", res.symbol);
+        }
+        return;
+      }
+
+      var name = res.symbol.slice(-10);
+      name = name.slice(0, 5) + "/" + name.slice(-5);
+      name = name.replace(/[_]/g, "");
+      let paycurrcode = name.split("/")[1];
+      var srt = -1;
+      switch (res.cond_no) {
+        case "0001":
+          srt = 1;
+          break;
+        case "0002":
+          srt = res.condition3 === "0" ? 2 : 3;
+          break;
+        case "0003":
+          srt = 4;
+      }
+      this.alarmToast(srt, Object.assign(res, { name, paycurrcode }));
+    },
+    // 토스트 : 체결
+    onRB03Notification(data) {
+      // 체결/주문거부 토스트
+      const val = data.getBlockData("OutBlock1")[0];
+      console.log("onRB03Notification", val);
+      if (!this.getUserId || val === [] || val === null || val === undefined) {
+        return;
+      } else {
+        var notiData = [];
+
+        notiData.duration = 3000;
+
+        if (val.evnt_tp === "2") {
+          notiData.message =
+            '<span class="notify_order_reject_text">' + this.$t('noti.g001') + '</span>'; // 주문이 거부되었습니다.
+          notiData.customClass = "notify_order_reject";
+          this.alarmToast(5, notiData);
+        } else if (val.evnt_tp === '6') {
+          notiData.message =
+            parseFloat(val.cntr_qty) +
+            ' ' +
+            val.trgt_cur_cd +
+            ' ' +
+            (val.buy_sell_tp === '2' ? this.$t('noti.g002') : this.$t('noti.g003')) + this.$t('noti.g004');
+          notiData.customClass =
+            val.buy_sell_tp === '2' ? 'notify_order_buy' : 'notify_order_sell';
+          
+          if(this.timer === null) {
+            this.alarmToast(5, notiData);
+            this.timer = setTimeout(() => {}, 1);
+          } else {
+            this.timer = setTimeout(() => {
+              this.alarmToast(5, notiData);
+            }, 50);
+          }
+        }
+      }
+    },
+    onMSGPNotification(querydata) {
+      var self = this;
+
+      console.log("onMSGPNotification");
+      if (querydata == null) {
+        console.log('querydata is null');
+        return;
+      }
+      var outblock1 = querydata.getBlockData("OutBlock1")[0];
+      if (outblock1 == null) {
+        console.log('outblock1 is null');
+        return;
+      }
+
+      //관리자메세지 출력
+      self.$EventBus.$emit("downChart");
+      self.dataMSGP = outblock1;
+      self.isAdminMSGP = true;
+    },
+    onMSGUNotification(querydata) {
+      var self = this;
+
+      //점검공지 이후 들어오는 메세지는 무시 (점검페이지로 이동해야됨)
+      if (self.dataMSGU.gb && self.dataMSGU.gb == '1') {
+        console.log("Server is checking now!");
+        return;
+      }
+
+      console.log("onMSGUNotification");
+      if (querydata == null) {
+        console.log('querydata is null');
+        return;
+      }
+      var outblock1 = querydata.getBlockData("OutBlock1")[0];
+      if (outblock1 == null) {
+        console.log('outblock1 is null');
+        return;
+      }
+
+      // data_gb (2byte)
+      // 한국어 : 00 ~ 09
+      // 영   어 : 10 ~ 19
+
+      // 한국어
+      // 00 : 긴급공지
+      // 01 : 서비스 점검
+
+      // 영어
+      // 10 : 긴급공지
+      // 11 : 서비스 점검
+      var langKind = 'ko';
+      if (outblock1.data_gb.charAt(0) == '1') {
+        langKind = 'en';
+      }
+
+      if (langKind != self.$i18n.locale) {
+        console.log('difference langKind', langKind, self.$i18n.locale);
+        return;
+      }
+
+      self.dataMSGU = outblock1;
+
+      //관리자메세지 출력
+      self.$EventBus.$emit("downChart");
+      self.dataMSGU.langKind = langKind;
+      if (self.dataMSGU.data_gb.charAt(1) == '1') {
+        self.dataMSGU.gb = '1';
+      } else {
+        self.dataMSGU.gb = '0';
+      }
+
+      if (self.dataMSGU.gb == "0") {
+        self.isAdminMSGU1 = true;
+      } else if (self.dataMSGU.gb == "1") {
+        self.isAdminMSGU2 = true;
+      }
+    },
+    /* 알림 toast */
+    alarmToast(_srt, data) {
+      // if(isPC) {
+      //   return;
+      // }
+
+      var notiTitle,
+        notiMsg,
+        notiCont,
+        notiDuration = 4500,
+        notiClass,
+        notiOffset;
+      switch (_srt) {
+        case 1: // 지정가 알림
+          notiTitle =
+            '<h1 class="noti-title">&lt;' +
+            this.$t("noti.e005-0") +
+            "&gt;</h1>";
+          notiMsg =
+            data.name +
+            " " +
+            this.$t("noti.e005-1", [
+              this.priceFormat(data.paycurrcode, data.condition1),
+              data.paycurrcode
+            ]);
+          notiDuration = 5000;
+          notiClass = "";
+          notiOffset = 44;
+          break;
+        case 2: // 등락(상승) 알림
+          notiTitle =
+            '<h1 class="noti-title">&lt;<span class="price-up">' +
+            this.$t("noti.e006-0") +
+            "</span> " +
+            this.$t("noti.e006-2") +
+            "&gt;</h1>";
+          if (data.condition1 == 60) {
+            data.condition1 = this.$i18n.locale === "en" ? "1 hour" : "1시간";
+          } else {
+            data.condition1 =
+              this.$i18n.locale === "en"
+                ? data.condition1 + " mins"
+                : data.condition1 + "분";
+          }
+          notiMsg =
+            data.name +
+            " " +
+            this.$t("noti.e006-3", [data.condition1, data.condition2]);
+          notiDuration = 5000;
+          notiClass = "";
+          notiOffset = 44;
+          break;
+        case 3: // 등락(하락) 알림
+          notiTitle =
+            '<h1 class="noti-title">&lt;<span class="price-down">' +
+            this.$t("noti.e006-1") +
+            "</span> " +
+            this.$t("noti.e006-2") +
+            "&gt;</h1>";
+          if (data.condition1 == 60) {
+            data.condition1 = this.$i18n.locale === "en" ? "1 hour" : "1시간";
+          } else {
+            data.condition1 =
+              this.$i18n.locale === "en"
+                ? data.condition1 + " mins"
+                : data.condition1 + "분";
+          }
+          notiMsg =
+            data.name +
+            " " +
+            this.$t("noti.e006-4", [data.condition1, data.condition2]);
+          notiDuration = 5000;
+          notiClass = "";
+          notiOffset = 44;
+          break;
+        case 4: // 거래량 알림
+          notiTitle =
+            '<h1 class="noti-title">&lt;' +
+            this.$t("noti.e007-0") +
+            "&gt;</h1>";
+          notiMsg =
+            data.name +
+            " " +
+            this.$t("noti.e007-1", [data.condition1, data.condition2]);
+          notiDuration = 5000;
+          notiClass = "";
+          notiOffset = 44;
+          break;
+        case 5: // 주문 체결/거부 알림
+          notiTitle = "";
+          notiMsg = data.message;
+          notiDuration = data.duration;
+          notiClass = data.customClass;
+          notiOffset = 44;
+          break;
+        case 6: // 전문가 신호 - 매수가 알림
+          notiTitle =
+            '<h1 class="noti-title">' + this.$t("signal.h001-0") + "</h1>";
+          notiMsg = "[" + data.expt_nm + "]<br>";
+          notiMsg +=
+            '<span class="strong">' +
+            (this.$i18n.locale === "ko" ? data.korname : data.engname) +
+            "(" +
+            data.tradcurrcode +
+            "/" +
+            data.paycurrcode +
+            ")</span><br>";
+          notiMsg +=
+            '<span class="label">' + this.$t("signal.h001-1") + "</span> ";
+          notiMsg +=
+            '<span class="strong">' +
+            this.priceFormat(data.paycurrcode, data.sig_buy) +
+            '</span> <span class="unit">' +
+            data.paycurrcode +
+            "</span><br>";
+          notiMsg +=
+            '<span class="label">' + this.$t("signal.h001-2") + "</span> ";
+          notiMsg +=
+            '<span class="price-down">' +
+            this.priceFormat(data.paycurrcode, data.sig_sales) +
+            '</span> <span class="unit">' +
+            data.paycurrcode +
+            "</span><br>";
+          notiDuration = 5000;
+          notiClass = "";
+          notiOffset = 44;
+          break;
+        case 7: // 전문가 신호 - 매도가 알림
+          notiTitle =
+            '<h1 class="noti-title">' + this.$t("signal.h002-0") + "</h1>";
+          notiMsg = "[" + data.expt_nm + "]<br>";
+          notiMsg +=
+            '<span class="strong">' +
+            (this.$i18n.locale === "ko" ? data.korname : data.engname) +
+            "(" +
+            data.tradcurrcode +
+            "/" +
+            data.paycurrcode +
+            ")</span><br>";
+          notiMsg +=
+            '<span class="label">' + this.$t("signal.h002-1") + "</span> ";
+          notiMsg +=
+            '<span class="strong">' +
+            this.priceFormat(data.paycurrcode, data.sig_sell) +
+            '</span> <span class="unit">' +
+            data.paycurrcode +
+            "</span><br>";
+          notiDuration = 5000;
+          notiClass = "";
+          notiOffset = 44;
+          break;
+      }
+
+      notiCont = notiTitle + notiMsg;
+
+      this.$EventBus.$emit("downChart");
+
+      this.$notify({
+        dangerouslyUseHTMLString: true,
+        title: "",
+        message: notiCont,
+        offset: notiOffset,
+        duration: notiDuration,
+        customClass: notiClass
+      });
+
+      if(this.timer !== null) {
+        clearTimeout(this.timer);
+        this.timer = null;
+      }
+
+      setTimeout(() => {
+        this.$EventBus.$emit("upChart");
+      }, notiDuration);
+    },
+    priceFormat(cd, prc) {
+      let self = this;
+      var nLenBelowDigitArray = [1];
+      UnitManager.getHogaUnit(
+        self.hogaUnit,
+        cd,
+        prc,
+        undefined,
+        undefined,
+        nLenBelowDigitArray
+      );
+      return UnitManager.fixedDecimalWithCommas(prc, nLenBelowDigitArray[0]);
+    },
+    /* 상장 안내 팝업 - 거래소로 이동 */
+    goExchange() {
+      this.visibleNewStock = false,
+      this.$router.push("/exchange");
+    },
+    nameFormat(obj) {
+      var self = this;
+      if (self.getLangKind == "KR") {
+        return obj["o_inst_kor_nm"].split("/")[0];
+      }
+      if (self.getLangKind == "EN") {
+        return obj["o_inst_eng_nm"].split("/")[0];
+      }
+    },
+    isEnableCoin(symbol) {
+      //라이브 배포시 주석 풀 것 (앱 심사용 리스트)
+      // if((
+      //         symbol != 'BTC/KRW' &&
+      //         symbol != 'ETH/KRW' &&
+      //         symbol != 'XRP/KRW' &&
+      //         symbol != 'BCH/KRW' &&
+      //         symbol != 'EOS/KRW' &&
+      //         symbol != 'LTC/KRW' &&
+      //         symbol != 'XMR/KRW' &&
+      //         symbol != 'DASH/KRW' &&
+      //         symbol != 'ZEC/KRW' &&
+      //         symbol != 'BTG/KRW' &&
+      //         symbol != 'ETC/KRW'))
+      // {
+      //   return false;
+      // }
+      return true;
+    },
+    langChangeCallback() {
+      let self = this;
+      document.title = self.titleMap[self.unitcode] + ' - ' + self.$t("header.title");
+    },
+    handleClose(done) {
+      let self = this;
+      if (!self.dataMSGU.gb || self.dataMSGU.gb != '1') {
+        if (done) done();
+        if (!self.isAdminMSGP && !self.isAdminMSGU1 && !self.isAdminMSGU2 && !self.visibleNewStock ) {
+          self.$EventBus.$emit("upChart");
+        }
+      }
+    },
+    closeNewStock() {
+      this.visibleNewStock = false;
+      this.handleClose();
+    },
+    closeMSGP() {
+      this.isAdminMSGP = false;
+      this.dataMSGP = {};
+      this.handleClose();
+    },
+    closeMSGU() {
+      let self = this;
+
+      if (self.dataMSGU.gb == '1') {
+        //서버점검 
+        location.reload();
+
+        //임시
+        // self.isAdminMSGU2 = false;
+        // self.dataMSGU = {};
+        // self.handleClose();
+      } else {
+        self.isAdminMSGU1 = false;
+        self.dataMSGU = {};
+        self.handleClose();
+      }
+    },
+    openNewStock() {
+      let self = this;
+      self.newStock = false;
+      self.$EventBus.$emit("downChart");
+      self.visibleNewStock = true;
+    }
+  },
+  created() {
+    var self = this;
+
+    //UNIT 거래소별 UNIT 코드 할당 (도메인으로 체크) start
+    self.$store.commit("setUnitcode", self.unitcode); //vuex의 setUnitcode
+    self.$socket.setUnitCode(self.unitcode); //KVQueryManager 의 setUnitCode
+    //UNIT 거래소별 UNIT 코드 할당 (도메인으로 체크) end
+
+    var md = new MobileDetect(window.navigator.userAgent);
+
+    var os_div = "";
+    var dev_ihrt_value = "";
+
+    if (md.os() == "AndroidOS") {
+      os_div = "1";
+    } else if (md.os() == "iOS") {
+      os_div = "2";
+    }
+
+    window.localStorage.setItem("os_div", os_div);
+
+    //LJH 2019.4.26, tablet인경우 모바일화면
+    if (md.phone() || md.tablet()) {
+      self.isPC = false;
+      window.localStorage.setItem("dev_ihrt_value", dev_ihrt_value);
+    } else {
+      self.isPC = true;
+    }
+
+    // -------------------------------------------------------------------------------------
+
+    self.$EventBus.$on("loadStockData", () => {
+      if (self.dataLoaded) return;
+      self.dataLoaded = true;
+
+      // 원화환산가 계산에 사용됨
+      self.requestCurrentKrPrice("BTC");
+      self.requestCurrentKrPrice("ETH");
+      self.requestCurrentKrPriceReal("BTC");
+      self.requestCurrentKrPriceReal("ETH");
+
+      if(self.oldSymbolKVS3.length > 0) {
+        self.$socket.unregisterReal("KVS3", self.oldSymbolKVS3, self.name);
+      }
+      if (self.newSymbolKVS3.length > 0) {
+        self.oldSymbolKVS3 = self.newSymbolKVS3;
+
+        // 거래개시를 알림
+        self.$socket.registerReal("KVS3", "symbol", self.newSymbolKVS3, self.name, function(queryData) {
+          console.log("KVS3", queryData);
+          self.newStock = true;
+          self.newStockStart = true;
+          self.$EventBus.$emit("reloadStockMaster");
+        });
+      }
+
+      // 신규상장을 알림 (여러 종목일 경우 동일한 상장시간으로 정의됨)
+      self.$socket.unregisterReal("KVS4", ["0"], self.name);
+      self.$socket.registerReal("KVS4", "qry_div", ["0"], self.name, function(queryData) {
+        console.log("KVS4", queryData);
+        self.newStock = true;
+        self.newStockStart = false;
+        self.$EventBus.$emit("reloadStockMaster");
+      });
+
+      // 신규상장을 알림 (여러 종목일 경우 동일한 상장시간으로 정의됨 : unit별)
+      self.$socket.unregisterReal("KVS5", [self.unitcode], self.name);
+      self.$socket.registerReal("KVS5", "unit_code", [self.unitcode], self.name, function(queryData) {
+        console.log("KVS5", queryData);
+        self.newStock = true;
+        self.newStockStart = false;
+        self.$EventBus.$emit("reloadStockMaster");
+      });
+    });
+
+    // -------------------------------------------------------------------------------------
+
+    self.$router.beforeEach((to, from, next) => {
+      if (self.isPC) {
+        document.title = self.titleMap[self.unitcode] + ' - ' + self.$t("header.title");
+      } else {
+        document.title = self.titleMap[self.unitcode];
+      }
+
+      if (!self.isPC) {
+        window.vue_obj_store = self.$store;
+        window.vue_obj_event = self.$EventBus;
+        window.vue_obj_router = self.$router;
+        window.vue_obj_sessionStorage = sessionStorage;
+      }
+
+      if (sessionStorage.getItem("currentSymbol")) {
+        //self.$store.state.data.currentSymbol = sessionStorage.getItem("currentSymbol");
+        self.$store.commit('setCurrentSymbol', sessionStorage.getItem("currentSymbol"));
+      }
+
+      next();
+    });
+
+    // self.$router.afterEach((to, from) => {
+    //   self.$socket.netIo.bufferType = "D";
+    // });
+
+    if (sessionStorage.getItem("currentSymbol")) {
+      //self.$store.state.data.currentSymbol = sessionStorage.getItem("currentSymbol");
+      self.$store.commit('setCurrentSymbol', sessionStorage.getItem("currentSymbol"));
+    }
+
+    if (self.isPC) {
+      document.title = self.titleMap[self.unitcode] + ' - ' + self.$t("header.title");
+      self.$EventBus.$on('langChange', self.langChangeCallback);
+    } else {
+      document.title = self.titleMap[self.unitcode];
+    }
+
+    // var lang = 'KR'
+
+    // if(!self.isLoggedIn){
+    //   if(window.localStorage.getItem('langKind')){
+    //     lang = window.localStorage.getItem('langKind');
+    //   }
+
+    //   switch(lang){
+    //     case 'KR':
+    //     self.$i18n.locale = 'ko';
+    //     case 'EN':
+    //     self.$i18n.locale = 'en';
+    //   }
+
+    //   window.localStorage.setItem('langKind',lang);
+    //   self.$store.commit("setLangKind", lang);
+    // }
+  },
+  mounted() {
+    var self = this;
+    if (!self.isPC) {
+      window.vue_obj_store = self.$store;
+      window.vue_obj_event = self.$EventBus;
+      window.vue_obj_router = self.$router;
+      window.vue_obj_sessionStorage = sessionStorage;
+    }
+
+    // self.$EventBus.$on("realCountAdd", () => {
+    //   self.realCount++;
+    // });
+
+    //거래소 이동 전 코인정보 불러옴
+    self.$EventBus.$on("reloadStockMaster", () => {
+      self.$EventBus.$emit("resetLoadStockData");
+      self.sendQuery("n1001", { i_qrydiv: "0" }, false, obj => {
+        if (obj != null) {
+
+          //지원가능한 코인 반환              
+          var enableCoins = self.$_.filter(obj["data"], i => {
+            // console.log("enableCoin: symbole:"+i.o_inst_eng_abbr+ " state:"+self.isEnableCoin(i.o_inst_eng_abbr));
+            return self.isEnableCoin(i.o_inst_eng_abbr);
+          });
+
+          self.$store.state.data["n1001"] = enableCoins; //store의 'n1001' 저장값을 enableCoins 값으로 변경
+          //지원가능한 코인 반환
+
+          if (!self.$store.state.data.currentSymbol) {
+            //디폴트 종목은 가장 첫번째 종목
+            if (enableCoins.length > 0) {
+              self.$store.commit('setCurrentSymbol', enableCoins[0].o_symbol);
+            }
+          }
+
+          self.$store.state.data.trSymbols = self.$_.pluck(obj["data"], "o_symbol");
+
+          // 상장예정종목 가져오기
+          var list = self.$_.filter(obj["data"], i => {
+            return i.o_exch_list_tp == "0";
+          });
+
+          // 최초 한번만 상장예정종목 등록 (why? 장개시 사용)
+          if (!self.newStockStart) {
+            self.newStockList = list;
+          }
+
+          self.newSymbolKVS3 = [];
+          if (self.newStockList.length > 0) {
+            self.newStockDate = self.getDate(self.newStockList[0].o_exch_list_dtm);
+            self.newStockList.forEach(function(item) {
+              self.newSymbolKVS3.push(item.o_symbol);
+            });
+          }
+
+          // KVS5 KVS4 KVS3 마스터정보 조회후 팝업 노출로 변경
+          if (self.newStock) {
+            self.openNewStock();
+          }
+
+          self.dataLoaded = false;
+          self.$EventBus.$emit("loadStockData");
+          // TODO : 종목 정보 갱신을 완료하였습니다 (토스트)
+        }
+      });
+    });
+
+    setInterval(() => {
+      console.log(
+        "checkConnect :",
+        self.$store.getters.isSocketConnected + " / " + new Date()
+      );
+    }, 60 * 1000);
+
+    if(afc.isDevice){      
+      setTimeout(() => {
+        cordova.exec(null,null,"AppPlugin","hidePatchView",null);
+      }, 1000);
+    }else{
+      setTimeout(() => {
+        $("#Wait").hide();
+      }, 1000);
+    }
+
+    if (afc.isDevice) {
+      afc.getPref(function(param) {
+        afc.clearPref();
+        if (param != "") {
+          self.$store.commit("setCurrentSymbol", param);
+          sessionStorage.setItem("currentSymbol", param);          
+          self.$router.push({ name: "mOrder" });
+        }
+      });
+    }
+  },
+  beforeDestroy() {
+    var self = this;
+    self.$socket.unregisterReal("KVS0", self.trSymbols, self.name);
+    if (self.oldSymbolKVS3.length > 0) {
+      self.$socket.unregisterReal("KVS3", self.oldSymbolKVS3, self.name);
+    }
+    self.$socket.unregisterReal("KVS4", ["0"], self.name);
+    self.$socket.unregisterReal("KVS5", [self.unitcode], self.name);
+    self.$socket.unregisterReal("MSGU", ["1"], self.name);
+  }
+};
+</script>

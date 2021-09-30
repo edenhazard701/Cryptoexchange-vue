@@ -1,0 +1,308 @@
+import Es6Promise from "es6-promise";
+Es6Promise.polyfill();
+
+import "babel-polyfill";
+import "event-source-polyfill";
+import Vue from "vue";
+import App from "./App";
+import ElementUI, { TabPane } from "element-ui";
+import "element-ui/lib/theme-chalk/index.css";
+import VueRouter from "vue-router";
+import VueHead from "vue-head";
+import { store } from "./vuex/store";
+import VueResource from "vue-resource";
+import Vuex from "vuex";
+import routes from "./routes";
+import underscore from "vue-underscore";
+import "font-awesome/css/font-awesome.min.css";
+import VueNativeSock from "./plugin/socketManager/SocketManager";
+import Nl2br from "vue-nl2br";
+import i18n from "./lang/index";
+import VueYouTubeEmbed from "vue-youtube-embed";
+import VeeValidate from "vee-validate";
+import Big from "big.js";
+import crypto from 'crypto';
+
+import VueAgile from "vue-agile";
+import { checkSession } from "@/api/session";
+
+Vue.use(VueNativeSock, process.env.SV_CONNECTIONURL, {
+  store: store,
+  protocol: "wsmw-protocol",
+  reconnectionAttempts: 10,
+  reconnectionDelay: 3000,
+  reconnection: true
+});
+
+const config = {
+  fieldsBagName: "field"
+};
+
+Vue.use(ElementUI, { i18n: (key, value) => i18n.t(key, value) });
+Vue.use(VueHead);
+Vue.use(VueRouter);
+Vue.use(Vuex);
+Vue.use(VueResource);
+Vue.use(underscore);
+Vue.component("nl2br", Nl2br);
+Vue.use(VueYouTubeEmbed);
+
+Vue.use(VeeValidate, config);
+
+Vue.use(VueAgile);
+
+Vue.use(VueResource);
+
+Vue.config.silent = true;
+
+export const router = new VueRouter({
+  routes,
+  scrollBehavior(to, from, savePosition) {
+    return { x: 0, y: 0 }; // 페이지 이동 시 맨 위로 스크롤
+  }
+});
+
+router.beforeEach((to, from, next) => {
+  /**
+   * isLoggedIn : 로그인 boolean (토큰여부)
+   * getUserId : 로그인한 user_id
+   * localStorage token : 로그인정보 가지고있는 토큰 => 추후 암호화 토큰으로 대체
+   * localStorage user_id : 임시로 전문 헤더에 세팅하기 위한 user_id
+   */
+
+  var token1 = "";
+  let isLogin = store.getters.isLoggedIn; //로그인상태ΩΩ
+
+  console.log("로그인정보");
+  console.log("%c=============================", "color:blue");
+  console.log("010101 isLogin ==>", isLogin);
+
+  checkSession({
+    userId: "a"
+  }).then(res => {
+    console.log("000 checkSession success::res ==>", res);
+    console.log("checkSession:", JSON.stringify(res));
+
+    if (res != "0" && !res) {
+      //res=='0'인 경우 처리가 되지 않도록 하기 위함
+      console.log("checkSession ERROR", res);
+
+      //현재 페이지 기억
+      store.state.nowPage = to.fullPath;
+
+      if (!isLogin && (store.state.user.langKind == null || store.state.user.langKind == "")) {
+        var lang = window.localStorage.getItem("langKind");
+        if (lang != null) {
+          //파라미터 언어설정인 경우(index.html) 예상치 못하는 값으로 받을 수 있음 / 언어설정에 대한 유효성체크 default value: "KR"
+          if (lang != 'EN') {
+            lang = 'KR'
+          }
+          store.commit("setLangKind", lang);
+          i18n.locale = (lang=="EN"?"en":"ko");
+
+          //device 언어팩 설정
+          if (afc.isDevice) {
+            var sType = (lang=="EN"?"1":"2");
+            setTimeout(() => {
+              cordova.exec( null , null, "AppPlugin" , "setLanguage", [ sType ]); //"1" : "en", "2":"ko"
+            }, 1000);
+          }
+          //device 언어팩 설정 end
+        } else {
+          store.commit("setLangKind", "KR");
+        }
+      }
+
+      if (from.name != null && !navigator.onLine && isLogin && to.name.toLowerCase().indexOf("login") < 0) {
+        window.localStorage.removeItem("token");
+        window.localStorage.removeItem("user_id");
+        window.localStorage.setItem("loginType", 0);
+        store.commit("setToken", null);
+        store.commit("setUserId", null);
+        store.commit("setSesnId", null);
+        store.commit("setAutoOrdTerms", null);
+        store.commit("setMySymbolList", null);
+
+        window.localStorage.removeItem("_login");
+        window.localStorage.setItem("loginYN", "N");
+
+        if (to.name != "login" && to.name != "mLogin") {
+          // 접속이 끊겼습니다. 다시 로그인을 하시겠습니까?
+          Vue.prototype.$confirm(i18n.t("login.h007"), "", {
+              confirmButtonText: i18n.t("login.h008"),
+              cancelButtonText: i18n.t("login.h009")
+            }).then(() => {
+              if (afc.isPC) {
+                router.push({ name: "login" });
+              } else {
+                router.push({ name: "mLogin" });
+              }
+            }).catch(() => {});
+        }
+        return;
+      } else if (to.name.toLowerCase().indexOf("login") > -1) {
+        next();
+      }
+      next(); //주석처리하면 내부망으로만 접속이 가능함
+      return;
+    }
+
+    if (res == "0") {
+      console.log("session is null");
+      
+      var lang = window.localStorage.getItem("langKind");
+      if (lang != null) {
+        //파라미터 언어설정인 경우(index.html) 예상치 못하는 값으로 받을 수 있음 / 언어설정에 대한 유효성체크 default value: "KR"
+        if (lang != 'EN') {
+          lang = 'KR'
+        }
+        store.commit("setLangKind", lang);
+        i18n.locale = (lang=="EN"?"en":"ko");
+
+        //device 언어팩 설정
+        if (afc.isDevice) {
+          var sType = (lang=="EN"?"1":"2");
+          setTimeout(() => {
+            cordova.exec( null , null, "AppPlugin" , "setLanguage", [ sType ]); //"1" : "en", "2":"ko"
+          }, 1000);
+        }
+        //device 언어팩 설정 end
+      } else {
+        store.commit("setLangKind", "KR");
+      }
+      
+      if (isLogin && !afc.isDevice) {
+        alert("세션서버에서 세션이 종료되었습니다");
+        store.dispatch("logout",{pass:true});
+      }
+    } else if (res == "00") {
+      console.log("session is timeout");
+
+      // Login 유지시간이 경과하여 Logout됩니다.
+      Vue.prototype.$alert(i18n.t("login.h010"), "", {
+        confirmButtonText: "OK",
+        callback: action => {
+          store.dispatch("logout");
+          next("/login");
+        }
+      });
+    } else {
+      console.log("get session success");
+
+      if (!isLogin) {
+        var strUserID = res.substr(0, 10);
+        var tokenStr = res.substr(13, res.length-11).split(":::");
+        var regExp = /[\"]/gi;
+
+        token1 = {
+          user_id: strUserID,
+          sesn_id: tokenStr[0].replace(regExp, ""),
+          auto_key: tokenStr[1].replace(regExp, ""),
+          langKind: tokenStr[2].replace(regExp, ""),
+          auth_ci: tokenStr[3].replace(regExp, ""),
+          unit_code: tokenStr[4].replace(regExp, "")          
+        };
+
+        console.log("get session Info", token1);
+        if (token1.langKind == null || token1.langKind == "null") {
+          token1.langKind = "KR";
+        }
+
+        store.commit("setToken", JSON.stringify(token1));
+        store.commit("setUserId", token1.user_id);
+        store.commit("setSesnId", token1.sesn_id);
+        store.commit("setLangKind", token1.langKind);
+        store.commit("setAuthCi", token1.auth_ci);
+        store.commit("setUnitcode", token1.unit_code);
+
+        //device 언어팩 설정
+        if (afc.isDevice) {
+          var sType = (token1.langKind == "KR"?"2":"1");
+          setTimeout(() => {
+            cordova.exec( null , null, "AppPlugin" , "setLanguage", [ sType ]); //"1" : "en", "2":"ko"
+          }, 1000);
+        }
+        //device 언어팩 설정 end
+
+        i18n.locale = token1.langKind == "EN" ? "en" : "ko";
+
+        window.loginObj["token"] = JSON.stringify(token1);
+        window.loginObj["user_id"] = token1.user_id;
+      }
+
+      isLogin = store.getters.isLoggedIn; //로그인상태
+
+      var _login = window.localStorage.getItem("_login");        
+
+      //복호화
+      try {
+        var json_login = null;
+        if(_login != null) {
+          var enc_login = _login
+          var decipher = crypto.createDecipheriv('aes-256-cbc', "kovexlogin!@#$%^kovexlogin!@#$%^", '1234567890abcdef');
+          var dec_login = decipher.update(enc_login,"hex", "utf8");
+          dec_login += decipher.final('utf8');
+          json_login = JSON.parse(dec_login);
+        }
+        
+        if (_login) {
+          if (store.state.user.login.user_id == '') {
+            store.commit("setLogin", json_login); //암호화 login 데이터 저장
+          }
+        }
+      } catch(err) {
+        console.log(err);
+      }
+    }
+
+    if (isLogin) {
+      window.localStorage.setItem("loginYN", "Y");
+    } else {
+      window.localStorage.setItem("loginYN", "N");
+    }
+
+    console.log("store.getters.isLoggedIn:" + isLogin);
+    if (isLogin) {
+      console.log("store.getters.getUserId :" + store.getters.getUserId); //로그인ID
+      console.log("store.getters.getSesnId :" + store.getters.getSesnId); //세션ID
+      console.log("store.getters.getAuthCi :" + store.getters.getAuthCi); //마이키핀CI
+      console.log("store.getters.getUnitcode :" + store.getters.getUnitcode); //unitCode
+    }
+    console.log("%c=============================", "color:blue");
+    console.groupEnd();
+
+    //현재 페이지 기억
+    store.state.nowPage = to.fullPath;
+    
+    next();
+  }).catch(res => {
+    console.error(res);
+  });
+});
+
+Vue.prototype.$EventBus = new Vue();
+
+Vue.prototype.$big = Big;
+
+Vue.http.interceptors.push(function(request) {
+  console.log(request);
+});
+
+export const EventBus = new Vue();
+
+new Vue({
+  router,
+  store,
+  i18n,
+  render: h => h(App)
+}).$mount("#app");
+
+//header_slide
+setTimeout(() => {
+  setInterval(() => {
+    $("#header_slide").on("touchmove", function(event) {
+      event.stopPropagation();
+      event.preventDefault();
+    });
+  }, 0);
+}, 0);

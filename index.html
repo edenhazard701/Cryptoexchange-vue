@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, maximum-scale=1.0, minimum-scale=1.0, initial-scale=1.0, user-scalable=no" />
+<meta http-equiv="Expires" content="-1" />
+<meta http-equiv="Progma" content="no-cache" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="format-detection" content="telephone=no">
+
+<!-- favicon -->
+<link rel="apple-touch-icon-precomposed" href="/static/apple-icon-114x114.png" type="image/png">
+<link rel="shortcut icon" href="/static/android-icon-72x72.png" type="image/png">
+<link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="/static/wait/css_wait.css" type="text/css">
+
+<title>KOVEX</title>
+<script>
+//서버점검 페이지
+var xhr = new XMLHttpRequest();
+xhr.open('POST', 'https://wwww.kovex.co.kr/data/checkServer.php');
+xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+xhr.onload = function() {
+  if (xhr.status === 200 && xhr.responseText != null) {
+    var res = JSON.parse(xhr.responseText);
+    if (res != null ) {
+      console.log(res["is_checking"]);
+      if (res["is_checking"] == 'Y') {
+        location.href = "/static/notice/index.html";
+      }
+    }
+  }
+};
+xhr.send('unitcode=00001');
+</script>
+<script>
+var PROJECT_OPTION = {
+  "build": {
+    "autoInc": true,
+    "dynamicInc": true,
+    "dynamicComp": true,
+    "bridgeName": "none"
+  },
+  "general": {
+    "autoScale": false,
+    "docWidth": 640,
+    "scaleVal": 1
+  },
+  "unitUrl": ""
+};
+
+function setData(data){
+  var obj = data;
+  if (typeof data == 'string') {
+    obj = JSON.parse(data);
+  }
+
+  var evt = new CustomEvent('pccCallback',{detail : obj } );
+  window.dispatchEvent(evt);
+}
+
+function pccCallbackFunc(e) {
+  if (e.data.di) {
+    if (typeof(CustomEvent) == "function"){
+      var evt = new CustomEvent('pccCallback', { detail : e.data } );
+      window.dispatchEvent(evt);
+    } else {
+      var params = { bubbles: false, cancelable: false, detail: e.data };
+      var evt = document.createEvent('CustomEvent');  
+      //initCustomEvent deprecated   
+      evt.initCustomEvent('pccCallback', params.bubbles, params.cancelable, params.detail);
+      window.dispatchEvent(evt);
+    }
+  }
+}
+
+//mts 전용
+function redirectDi(data) {
+    var e = {};
+    e.data = JSON.parse(data);
+    pccCallbackFunc(e);
+}
+//web 공통(pc, mobile)
+window.addEventListener('message', function(e) {
+    pccCallbackFunc(e);
+});
+
+window.loginObj = {};
+
+// Set the name of the hidden property and the change event for visibility
+var hidden, visibilityChange; 
+if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support 
+  hidden = "hidden";
+  visibilityChange = "visibilitychange";
+} else if (typeof document.msHidden !== "undefined") {
+  hidden = "msHidden";
+  visibilityChange = "msvisibilitychange";
+} else if (typeof document.webkitHidden !== "undefined") {
+  hidden = "webkitHidden";
+  visibilityChange = "webkitvisibilitychange";
+}
+// Warn if the browser doesn't support addEventListener or the Page Visibility API
+if (typeof document.addEventListener === "undefined" || hidden === undefined) {
+  console.log("This demo requires a browser, such as Google Chrome or Firefox, that supports the Page Visibility API.");
+} else {
+  // Handle page visibility change   
+  // document.addEventListener(visibilityChange, handleVisibilityChange, false);
+  // document.addEventListener(visibilityChange, function(){            
+  //     console.log("visibilityChange test");
+  // }, false);
+}
+
+function redirectTrade(symbol) {
+  window.vue_obj_store.commit('setCurrentSymbol', symbol);
+  window.vue_obj_event.$emit('changeCurrentSymbol', symbol);
+  window.vue_obj_sessionStorage.setItem('currentSymbol', symbol);        
+  window.vue_obj_router.push({name: 'mOrder'});
+}
+</script>
+
+<script src="//unpkg.com/core-js-bundle@3.1.4/index.js"></script>
+<script src="//unpkg.com/regenerator-runtime@0.13.3/runtime.js"></script>
+
+<script src="./static/Library/jquery-2.1.3.js"></script>
+
+<script src="./static/Library/afc.js?ver=201905301551"></script>
+<script src="./static/Library/io/UnikeyAIR_2.0.0.9_off.js"></script>
+
+<script src="./static/Library/ChartLib/Html5Chart.js?ver=201906131340"></script>
+<script src="//www.google.com/recaptcha/api.js?onload=vueRecaptchaApiLoaded&render=explicit" async defer></script>
+<script src="./static/Library/GoogleRecaptcha/vue-recaptcha.min.js"></script>
+<script src="./static/Library/qrcode.js"></script>
+<script src="./static/Library/global/ExchangeManager.js"></script>
+<script src="./static/Library/global/UnitManager.js"></script>
+<script src="./static/Library/global/NumberUtil.js?ver=201906211721"></script>
+<script src="./static/Library/ChartManager.js"></script>
+<script src="./static/Library/PushManager.js"></script>
+<script src="./static/Library/AppManager.js"></script>
+<script src="./static/Library/MyKeepinManager.js"></script>
+<script src="./static/Library/DataManager.js"></script>
+<script src="./static/Library/swiper.js"></script>
+<script src="https://jsgetip.appspot.com" type = "text/javascript"></script>
+<script src="./static/Library/exchain.js"></script><!-- oneClick 입금 -->
+<script src="./static/Library/SecurePadManager.js"></script><!-- 보안키패드 앱 -->
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script src="https://ssl.daumcdn.net/dmaps/map_js_init/postcode.v2.js"></script>
+
+
+<script>
+if (location.host != null && (location.host.indexOf('localhost') >= 0 || location.host.indexOf('kovex.co.kr') >= 0)) {
+  //유저환경 보기
+  var strUserInfo = "";
+  if(afc.isAndroid) strUserInfo += "Android ";
+  if(afc.isIos) strUserInfo += "Ios ";
+  if(afc.isTizen) strUserInfo += "Tizen ";
+  if(afc.isPC) strUserInfo += "PC ";
+  if(afc.isMobile) strUserInfo += "Mobile ";
+  if(afc.isSimulator) strUserInfo += "Simulator ";
+  if(afc.isChrome) strUserInfo += "Chrome ";
+  if(afc.isAndWebview) strUserInfo += "AndWebview ";
+  if(afc.isSystemWebview) strUserInfo += "SystemWebview ";
+  if(afc.isIE) strUserInfo += "IE ";
+  console.log("UserInfo:", strUserInfo);
+} else {
+  //로그제거
+  window['console']['log'] = function() {};
+}
+
+function loading() {
+  var wait_cnt = 5;
+  var wait_obj = setInterval(function() {
+    wait_cnt--;
+    if(wait_cnt < 0){
+      clearInterval(wait_obj);
+      return;
+    }
+    $('#wait-cnt').text(wait_cnt);
+  }, 1000);
+}
+loading();
+
+//LJH 2019.04.26, 30초후에도 로딩중인경우 접속지연안내 페이지 호출
+//vue -> html파일로 있어야 하지 않을까 생각됨 
+function error_info() {
+  setTimeout(function() {
+    console.log("wait", $("#Wait").is(":visible"));
+    if ($("#Wait").is(":visible")) {
+      location.href = "/#/wait";
+    }
+  }, 30000);
+}
+error_info();
+</script>
+</head>
+
+<body>
+  <!-- 페이지 wait 화면 -->
+  <div id="Wait">
+    <div class="wait-container">
+        <h1 class="logo"><span class="logo-txt">코벡스</span></h1>
+        <div class="loading-bx"><span class="spin"></span></div>
+        <p class="time-txt">
+            잠시만 기다려주세요.<br>
+            Please wait <span id="wait-cnt">5</span> seconds.
+        </p>
+        <p class="server-txt">
+            코벡스는 안정된 시스템을 기반으로 최적화된 거래 환경을 제공합니다.<br>
+            Kovex provides optimized trading environment based on stable system. 
+        </p>
+    </div>
+  </div>
+  <script>
+  // 앱실행시 로딩화면 제거
+  if (afc.isDevice) {
+    $('#Wait').remove();
+  }
+  </script>
+  <!-- 페이지 wait 화면 -->
+
+  <div id="app"></div>
+</body>
+</html>

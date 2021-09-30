@@ -1,0 +1,102 @@
+<template>
+  <el-main class="bank-account-main">
+    <!-- 회원가입 인트로 -->
+       <div style="margin-top: 50px;                
+                  text-align:center"
+               >
+           <span style="font-size: 16pt;font-weight: bold;">
+             가상자산 거래의 시작</span>
+       </div>
+       <div style=" text-align:center">
+          <span style="font-size: 16pt;font-weight: bold;">
+            코벡스에서 함께 해요.
+           </span>
+       </div>
+       <div style="margin-top: 100px;
+                   font-size: 14pt;
+                   text-align: center;">
+          그럼 회원가입을 시작해볼까요?
+          <div style="margin-top: 10px;
+                      font-size: 10pt;
+                      color: #BDBDBD;">
+            평균 회원가입 시간 2분
+          </div>
+       </div>
+
+      <div class="btm_fix_btn">
+        <el-button class="b_success_btn" @click="goRegTerm">다음    </el-button>
+      </div>
+  </el-main>  
+</template>
+
+<script>
+
+export default {
+  components: {
+    },
+  data() {
+    return {    
+      autoLogin: true,
+      langs: ['ko', 'en'],
+      secure_pass : '',
+      openkeyPadcheck : false,
+    }
+  },
+  methods: {
+    goRegTerm(e) {
+      let self = this;
+      self.$store.state.user.termFrom = 'RegiIntro'
+      self.$router.push({name: 'mTermAgree'}); 
+    },
+  },
+  created() {
+      this.$EventBus.$emit('mobile-nav-title', '');
+      this.$EventBus.$emit('mobile-nav-menus', ['noDefault']);
+  }
+}
+</script>
+<style>
+ .agree_wrap {
+  margin: 40px 0 0;
+  padding: 0;
+  font-size: 14px;
+  color: #212121;
+ }
+ .all_agree {
+   display: block;
+   margin-top: 20px;
+   padding: 15px 10px;
+   background: #f5f5f5;
+   font-size: 14px;
+   color: #212121;
+ }
+ .area {
+   padding: 15px 10px;
+   background: #f5f5f5;
+   font-size: 14px;
+   color: #212121;
+ }
+ .watch_btn {
+   display: inline-block;
+   position: absolute;
+   right: 0;
+   top: 50%;
+   width: 60px;
+   height: 30px;
+   padding: 0;
+   font-size: 11px;
+   color: #212121;
+   text-align: center;
+   font-weight: 300;
+   line-height: 30px;
+   border: 1px solid #e0e0e0;
+   border-radius: 2px;
+   transform: translateY(-50%);
+   white-space: nowrap;
+   cursor: pointer;
+   background: #FFF;
+   box-sizing: border-box;
+   outline: 0;
+   margin: 0;
+ }
+</style>

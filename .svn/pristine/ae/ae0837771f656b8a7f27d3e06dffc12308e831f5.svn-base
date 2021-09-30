@@ -1,0 +1,660 @@
+<template>
+    <el-main>
+        <el-form ref="topForm" :model="topForm">
+            <div class="MyInfo">
+                <div v-if="((typeof getUnitCode != 'undefined')&&(getUnitCode != '00999'))" class="cell">
+                    <span class="title">{{'지점'}}<!-- 지점 --></span>
+                    <span class="value">{{ unitKorNm }}</span>
+                </div>
+                <div class="cell">
+                    <span class="title">{{'이름(한글)'}}<!-- 이름(한글) --></span>
+                    <span class="value">{{ userNm }}</span>
+                </div>
+               <div v-if="((typeof getUnitCode != 'undefined')&&(getUnitCode != '00999'))" class="cell">
+                    <span class="title">{{'이름(영문)'}}<!-- 이름(영문) --></span>
+                       <el-form-item  >
+                          <span class="value">
+                            <el-input :disabled="engNameDisabled" type="text" id="firstnameEdit" placeholder="First name" max="10" size="small" v-model="topForm.firstName" style="width:45%"></el-input>
+                            <el-input :disabled="engNameDisabled" type="text" id="lastnameEdit"  placeholder="Last name"  max="10" size="small" v-model="topForm.lastName" style="width:45%"></el-input>
+                         </span>
+                       </el-form-item>
+                </div>
+                <div class="cell">
+                    <span class="title">{{'생년월일'}}<!-- 생년월일 --></span>
+                    <span class="value">{{ userBrthDay }}</span>
+                </div>
+                <div class="cell">
+                    <span class="title">{{$t('mypage.b005')}}<!-- 휴대폰 번호 --></span>
+                    <span class="value">{{ authMoblNo }}</span>
+                </div>
+                <div class="info_wrap" v-if="((typeof getUnitCode != 'undefined')&&(getUnitCode != '00999'))"  style="height:100%;overflow:auto;">
+                    <el-tabs v-model="activeName" @tab-click="sendEvent" :disabled="editWrapDisabled" stretch >
+                        <el-tab-pane class="inf current" name="first" label="자택정보">
+                            <Accomo-Edit></Accomo-Edit>   
+                        </el-tab-pane>
+
+                        <el-tab-pane class="info" name="second" label="직장정보"  style="height:600px;">
+                            <WorkPlace-Edit></WorkPlace-Edit>
+                        </el-tab-pane>
+
+                        <el-tab-pane class="info" name="third" label="자금정보">
+                            <Fund-Edit></Fund-Edit>
+                        </el-tab-pane>
+                    </el-tabs>                   
+                </div>
+            </div>
+            <div v-if="((typeof getUnitCode != 'undefined')&&(getUnitCode != '00999'))">
+                <!-- 편집버튼 클릭시 -->
+                <div v-if="!saveVisible" style="text-align:center">
+                    <el-button type="text"  @click.native.prevent="checkIDCert">{{this.editBtn}}</el-button>
+                </div>
+                <!-- 저장버튼 클릭시 -->
+                <div v-else>
+                    <el-button class="b_success_btn"  @click.native.prevent="allUpdate" id="infoEditSaveBtn">{{this.saveBtn}}</el-button>
+                </div>
+            </div>
+        </el-form>
+        <post-no></post-no>
+    </el-main>
+</template>
+
+
+<script>
+import { myKeepInVerifyAuthInfo, myNodeServerAuthVerify, myNodeServerAuth } from '@/api/myKeepinRequest';
+import { mapGetters } from 'vuex'
+export default {
+	components: {
+        PostNo: () => import(/* webpackPrefetch: true */ '@/views/member/common/PostNoDialog.vue'),
+        AccomoEdit: () => import(/* webpackPrefetch: true */ '@/views/mobile/mypage/customerEditTab/AccomoEdit.vue'),
+        WorkPlaceEdit: () => import(/* webpackPrefetch: true */ '@/views/mobile/mypage/customerEditTab/WorkPlaceEdit.vue'),
+        FundEdit: () => import(/* webpackPrefetch: true */ '@/views/mobile/mypage/customerEditTab/FundEdit.vue')
+	},
+    computed:{
+        ...mapGetters(['getUserId', 'getUnitcode'])
+    },    
+    watch:{
+        saveVisible()
+        {
+            if(this.saveVisible == false)
+            {
+                this.$EventBus.$emit("mobile-nav-title", this.userInfoTitle);
+                this.editWrapDisabled = true;
+                this.engNameDisabled = true;           
+                this.sendEvent()
+          
+            }else
+            {
+                this.$EventBus.$emit("mobile-nav-title", this.infoEditTitle);     
+                this.editWrapDisabled = false;  
+                this.engNameDisabled = false;                 
+                this.sendEvent()
+            }    
+        }     
+    },
+	data() {
+		return {   
+            mykeepinDivName: 'MyKeepinDIV', //2021.07.13 by lyk - 모바일 앱 마이키핀 설정 : 연동 식별자
+            serviceIdData : 'd5abd0d9-4dc1-4a0f-84ce-89df21f46a5e',      
+            userInfoTitle: '회원정보',
+            infoEditTitle: '정보편집',         
+            editBtn: '편집',
+            saveBtn: '저장',
+            saveVisible: false,         
+            activeName: 'first',
+            
+            unitKorNm   : '',
+            userNm      : '',
+            userBrthDay : '',
+            authMoblNo  : '',
+
+            topForm: {
+                firstName: '',
+                lastName: '',
+            },
+
+            //MyInfo 정보편집 저장 시 필요한 값
+            myInfoArr: {
+                //자택정보
+                saveAccomoArr: {
+                    user_eng_nm: '',
+                    user_eng_surnm: '',
+                    home_pst_no: '',
+                    home_addr: '',
+                    home_addr_dtl: '',
+                    home_area_code: '',
+                    home_phon_no: ''
+                },
+
+                //직장정보
+                saveWorkPlaceArr: {
+                    job_tp: '',
+                    job_kind: '',
+                    job_position_code: '',
+                    ofc_nm: '',
+                    ofc_dept_nm: '',
+                    ofc_pst_no: '',
+                    ofc_addr: '',
+                    ofc_addr_dtl: '',
+                    ofc_area_code: '',
+                    ofc_phon_no: ''
+                },
+
+                //자금정보
+                saveFundArr: {
+                    fund_src_tp: '',
+                    fund_src_etc: '',
+                    trd_purp_cd: '',
+                    trd_purp_etc: ''
+                }
+            },
+
+            editWrapDisabled: true,
+            engNameDisabled: true,
+
+            myKeepinURL:'https://univax.kovex.co.kr/static/browser/mykeepin/editinfomobileweb.html',
+            authMyKeepinURL:'https://auth.mykeepin.com/didauth/v1/authorize/view'      
+        };
+	},      
+   
+	methods: {
+        
+        //랜덤 UUID 생성(테스트용)
+        guid() {
+            function _s4() {
+                return ((1 + Math.random()) * 0x10000 | 0).toString(16).substring(1);
+            }
+            return _s4() + _s4() + '-' + _s4() + '-' + _s4() + '-' + _s4() + '-' + _s4() + _s4() + _s4();
+        },  
+        //로컬 테스트용
+        checkCert(){
+            let self = this    
+            
+            //마이키핀에 인증요청     
+            self.myKeepInCert()
+        
+            self.stateData = '6a0a5ad6-fcd9-d23b-1ea7-d7478b4cf445'
+            self.codeData = '924a6f1f-1bdf-4714-b1cb-bb7c7f2d3b88'    
+
+            //인증서버에 인증요청 
+            //self.getMyKeepInVerifiedResult(self.stateData,self.codeData )      
+        },      
+        //로컬 테스트용
+        myKeepInCert(){
+            let self = this       
+
+            //UUID 생성
+            self.uuid = self.guid();      
+            //console.log("uuid:"+self.uuid)
+            var params = {
+                service_id : 'd5abd0d9-4dc1-4a0f-84ce-89df21f46a5e',    //코백스 전용 service_id
+                redirect_uri : 'https://univax.kovex.co.kr/index.html',  //리다이렉트 될 코벡스페이지
+                state : self.uuid,
+                type : '4',  //본인인증
+                did: '',  //필수아님
+                data: ''  //필수아님
+            };
+            console.log("params:"+JSON.stringify(params));
+
+            var url = "https://auth.mykeepin.com/didauth/v1/authorize/view?";
+            
+            console.log("state:"+self.uuid);      
+
+            window.open(url + "&service_id="+params.service_id+"&state="+params.state+"&type="+params.type+"&redirect_uri="+params.redirect_uri+"", "_blank")
+                
+        },
+
+        checkIDCert(){          
+            let self = this          
+
+            //2021.07.13 by lyk - 모바일 앱 마이키핀 설정 : 코벡스 앱을 통해 마이키핀 인증 앱 실행 >>
+            if (afc.isDevice) {
+                /*
+                [인증유형]
+                1	회원가입	Register	KVSignupPresentation
+                2	간편로그인	Login(Sign-in)	KVLoginPresentation
+                3	계좌만들기(주민등록증)	Open Account	KVIdentityPresentation
+                4	본인인증	Identity verification	KVVerificationPresentation
+                5	계좌만들기(운전면허증)	Open Account	KVIdPresentation2
+                */
+                cordova.exec( null , null, "AppPlugin" , "goMyKeepin", [ "4" ]);
+            }
+            else{  //모바일웹용
+                self.myKeepInCertWindow()
+            }
+            //2021.07.13 by lyk - 모바일 앱 마이키핀 설정 : 코벡스 앱을 통해 마이키핀 인증 앱 실행 <<
+        
+        },   
+
+        //2021.07.13 by lyk - 모바일 앱 마이키핀 설정 - 앱에서 마이키핀 앱 인증 성공 후 화면에서 전달 받는 함수 >>
+        onMyKeepinRecvData(state, type, code) {
+            let self = this
+
+            // alert("MyKeepinApp.onMyKeepinRecvData:"+state+","+type+","+code);
+            console.log("MyKeepinApp.onMyKeepinRecvData:", state+"==="+type+"==="+code)
+
+            if(state == "onNotInstall" || state == "onNeedUpdate") {
+                if (window.localStorage.getItem('os_div') == '1') { //안드로이드
+                // window.open("https://play.google.com/store/apps/details?id=com.coinplug.mykeepin", "_blank")    
+                // location.href = "https://play.google.com/store/apps/details?id=com.coinplug.mykeepin";
+                //goDeepLink
+                cordova.exec( null , null, "AppPlugin" , "goDeepLink", [ "market://details?id=com.coinplug.mykeepin", "https://play.google.com/store/apps/details?id=com.coinplug.mykeepin" ]);
+                } else if (window.localStorage.getItem('os_div') == '2') { //iOS
+                window.open("https://apps.apple.com/kr/app/mykeepin-%EC%BD%94%EC%9D%B8%ED%94%8C%EB%9F%AC%EA%B7%B8-%EB%94%94%EC%A7%80%ED%84%B8-id/id1479166844", "_blank")    
+                }
+            } else {
+                //인증서버와 데이터 검증 후 완료되면 아래 페이지로 이동
+                // 회원가입 완료 페이지로 이동
+                if(state != "" && type != "" && code != "") {
+                //인증서버에 인증요청
+                self.getMyKeepInVerifiedResult(state,code )
+                } else {
+                // alert("MyKeepinApp.not working:"+state+","+type+","+code);
+                console.log("MyKeepinApp.not working:", state+","+type+","+code);
+                }
+            }
+        },
+        //2021.07.13 by lyk - 모바일 앱 마이키핀 설정 - 앱에서 마이키핀 앱 인증 성공 후 화면에서 전달 받는 함수 <<
+        
+        //마이키핀 로긴 인증요청(get 방식:QR코드 가져옴)
+        myKeepInCertWindow(){
+            let self = this      
+            self.uuid = self.guid();      
+        
+            const params = {
+            service_id : self.serviceIdData,  //코백스 전용 service_id
+            redirect_uri : self.myKeepinURL,  //리다이렉트 될 코벡스페이지  
+            state : self.uuid,
+            type : '4',   // 회원정보편집시 본인인증
+            did: '',  //필수아님
+            data: ''  //필수아님
+            };
+            console.log("params:"+JSON.stringify(params));
+
+           // const url = 'https://auth.mykeepin.com/didauth/v1/authorize/view' + '?'
+            const url = self.authMyKeepinURL + '?'
+
+            const MKPN_URL = url + "service_id="+params.service_id+"&redirect_uri="+params.redirect_uri+"&state="+params.state+"&type="+params.type+""
+            console.log("MKPN_URL:"+self.MKPN_URL)
+            //페이지 전체 마이키핀으로 대체 
+            window.location.href = MKPN_URL;       
+        }, 
+
+        //리다이렉트로 받은 파라미터 핸들링    
+        myKeepInCallback(val) {
+             let self = this;          
+
+             console.log('myKeepInCallback:', JSON.stringify(val));   
+    
+            if(val.state)
+            {
+                self.stateData = val.state;	
+                self.codeData = val.code;
+            
+                //Verify Auth Info 호출
+                self.getMyKeepInVerifiedResult( self.stateData, self.codeData )    
+            }      
+        },      
+
+        //인증서버에 인증요청
+        getMyKeepInVerifiedResult(dt1, dt2){
+            let self = this
+            myKeepInVerifyAuthInfo({ //-> did vp, signature 값을 받아옴    
+                stateData: dt1,
+                codeData:  dt2     
+            })
+            .then(res => {
+                console.log("Success:myKeepInVerifyAuthInfo");       
+                self.didData = res.did
+                self.vpData = res.vp
+                self.signatureData = res.signature
+                self.stateData = dt1
+                self.codeData = dt2
+                
+            //  console.log("didData : "+  self.didData )
+            //  console.log("vpData :"+  self.vpData )
+            //  console.log("signatureData :"+  self.signatureData )      
+            //  console.log("stateData :"+  self.stateData )
+            //  console.log("codeData :"+  self.codeData )
+
+                self.getUserInfoVerifiedResult()
+                
+                return
+
+            }).catch(err => {
+                if(typeof err.status != "undefined" && err.status != '200')
+                {
+                    console.log(new Error( err.status + ": Request is failed" ));     
+                    self.$alert(self.$t('mykeepin_err.' + err.status ), '', {
+                    dangerouslyUseHTMLString: true,
+                    confirmButtonText: self.$t('sys_err.a001')
+                    });            
+                    return         
+                }
+            })    
+        },
+        //사용자데이터검증
+        getUserInfoVerifiedResult()
+        { 
+            let self = this
+            myNodeServerAuthVerify({   
+
+            didData:  self.didData,   
+            stateData: self.stateData,
+            typeData: '4',// self.typeData,   
+            codeData: self.codeData,
+            signatureData:  self.signatureData
+
+            }).then(res => {       
+            //데이터 검증 성공
+            if(res == true )
+            {
+                console.log("Success:myNodeServerAuthVerify");
+                self.dataVerification = true
+                //사용자정보 가져옴
+                self.getUserInfo()
+            }
+            else{   //데이터 검증 실패
+                self.$alert('인증에 실패했습니다.<br> 마이키핀 계정정보를 다시 확인해주세요.', '', {
+                    dangerouslyUseHTMLString: true,
+                    confirmButtonText: self.$t('sys_err.a001')
+                });
+            }  
+            return      
+
+            }).catch(err => {
+            if(typeof err.status != "undefined" && err.status != '200')
+            {
+                console.log(new Error( err.status + ": Request is failed" ));   
+                self.$alert(self.$t('mykeepin_err.' + err.status ), '', {
+                    dangerouslyUseHTMLString: true,
+                    confirmButtonText: self.$t('sys_err.a001')
+                });                      
+                return  
+            }   
+            })    
+        },
+        //사용자정보 받아옴
+        getUserInfo()
+        { 
+            let self = this
+            //사용자정보 받아옴
+            myNodeServerAuth({        
+            didData:  self.didData,   
+            vpData: self.vpData       
+            }).then(res => {       
+            //데이터 검증 성공              
+                self.authCi = res[1].vc.credentialSubject.ci 
+                self.mobileNo = res[0].vc.credentialSubject.mobileNumber
+                console.log("Success:myNodeServerAuth");
+            
+                console.log("authCi:" + JSON.stringify( self.authCi));    
+                console.log("mobileNo:" + JSON.stringify( self.mobileNo));                  
+              
+                self.saveVisible = true          
+
+            return  
+            }).catch(err => {
+            if(typeof err.status != "undefined" && err.status != '200')
+            {
+                console.log(new Error( err.status + ": Request is failed" ));   
+                self.$alert(self.$t('mykeepin_err.' + err.status ), '', {
+                dangerouslyUseHTMLString: true,
+                confirmButtonText: self.$t('sys_err.a001')
+                });      
+                return
+            }   
+            })
+        },    
+      
+        showSaveBtn(){
+            this.saveVisible = true         
+        },
+        //주택 우편번호, 주소 보여주기
+        mAccomoEditPostNo(data) {
+           
+            if(data != null && data.flag == true)
+            {
+                this.$EventBus.$emit('mAccomoEditPostNo', data);
+              
+            }else{
+                 this.$EventBus.$emit('mAccomoEditPostNo', '');
+           
+            }
+        },
+
+        //직장 우편번호, 주소 보여주기
+        mWorkPlaceEditPostNo(data) {
+            
+            if(data != null && data.flag == true)
+            {
+                this.$EventBus.$emit('mWorkPlaceEditPostNo', data);
+              
+            }else{
+                this.$EventBus.$emit('mWorkPlaceEditPostNo', '');
+            }
+        },
+       
+        sendEvent() {
+            let self = this;
+            if(self.activeName == 'first') {
+                self.$EventBus.$emit('mAccomoEdit', self.editWrapDisabled);
+            }
+            if(self.activeName == 'second') {
+                self.$EventBus.$emit('mWorkPlaceEdit', self.editWrapDisabled);
+            } 
+            if(self.activeName == 'third') {
+                self.$EventBus.$emit('mFundEdit', self.editWrapDisabled);
+            } 
+        },       
+  
+        //저장 버튼
+        allUpdate() {
+            let self = this;  
+         
+            if( $.trim($('#firstnameEdit').val()) == '' ||
+                $.trim($('#lastnameEdit').val()) == '' 
+            ){
+
+                self.$alert('이름(영문) 입력을 완료해 주세요.', {
+                    confirmButtonText: '확인'
+                })             
+               
+            }else{ 
+                //각 탭에서 적합성 체크
+                self.$EventBus.$emit('mAccomoVali');
+                self.$EventBus.$emit('mWorkPlaceVali');
+                self.$EventBus.$emit('mFundVali')
+
+                if(     self.resiValiRes == true &&
+                        self.workValiRes == true &&
+                        self.fundValiRes == true )
+                {       
+                    try{                    
+                        //각 탭에서 저장할 데이터 가져와서 myInfoArr 에 저장
+                        self.$EventBus.$emit('mAccomoSave', 'get');    
+                        self.$EventBus.$emit('mWorkPlaceSave', 'get');
+                        self.$EventBus.$emit('mFundSave', 'get');
+                
+                        //저장 버튼 누른 후 마이키핀인증 페이지 이동
+                        //console.log("myInfoArr1:" + JSON.stringify(self.myInfoArr))
+                        self.$router.push({name: 'mInfoChangeCertifi', params:{totalArr:self.myInfoArr}});      
+                                
+                
+                    }catch(e){
+                        console.log("error: " + JSON.stringify(e))
+                    }     
+                }    
+            }             
+        },
+        mAccomoSendVali(data){
+            this.resiValiRes = data
+            console.log("resiValiRes: " + this.resiValiRes)
+        },
+        mWorkPlaceSendVali(data){
+            this.workValiRes = data
+            console.log("workValiRes: " + this.workValiRes)
+        },
+        mFundSendVali(data){
+            this.fundValiRes = data
+            console.log("fundValiRes: " + this.fundValiRes)           
+        },
+        mAccomoSendArr(data){
+            if(data)
+            {               
+                this.myInfoArr.saveAccomoArr = data
+                console.log("mAccomoSendArr: " + JSON.stringify(this.myInfoArr.saveAccomoArr))
+            }        
+        },
+        mWorkPlaceSendArr(data){
+            if(data)
+            {              
+                this.myInfoArr.saveWorkPlaceArr = data
+                console.log("mWorkPlaceSendArr: " + JSON.stringify( this.myInfoArr.saveWorkPlaceArr))
+            }
+        },
+        mFundSendArr(data){
+            if(data)
+            {              
+                this.myInfoArr.saveFundArr = data
+                console.log("mFundSendArr: " + JSON.stringify(  this.myInfoArr.saveFundArr))
+            } 
+        },
+        //회원정보 조회
+        myInfo() { 
+            let self = this; 
+            self.$store.dispatch('myInfo',{user_id:self.getUserId}).then((data) => { 
+                console.log('myInfo Success', data);               
+               
+                self.userNm = data.user_nm    
+                console.log("user_nm:" +self.userNm )
+                self.unitKorNm = data.unit_kor_nm
+                self.topForm.firstName = data.user_eng_nm;
+                self.topForm.lastName = data.user_eng_surnm;
+                if(data.user_brth_day)
+                {
+                    let date = data.user_brth_day
+                    self.userBrthDay = date.substring(0,4) + '.' + date.substring(4,date.length-2)  + '.' + date.substring(date.length-2,date.length) //1981.1.14
+                }
+                if(data.auth_mobl_no)
+                {
+                    let authMoblNo = data.auth_mobl_no
+                    self.authMoblNo = authMoblNo.substring(0,3) + '-' +  authMoblNo.substring(3,7) + '-' + authMoblNo.substring(7)  //01094898114
+                }
+                console.log("unitKorNm: " + self.unitKorNm)
+                console.log("firstName: " + self.topForm.firstName)
+                console.log("lastName: " + self.topForm.lastName)
+                console.log("userBrthDay: " + self.userBrthDay)
+                console.log("authMoblNo: " + self.authMoblNo)
+            }).catch(err => {
+         
+              console.log(new Error( err ));   
+              self.$alert(self.$t('myInfoError.' + err ), '', {
+                dangerouslyUseHTMLString: true,
+                confirmButtonText: self.$t('sys_err.a001')
+              });                      
+              return  
+
+            })    
+        },
+    },
+    
+    mounted(){
+        let self = this;     
+        
+        if (self.$store.getters.isSocketConnected) {
+            self.myInfo();
+        } else {
+            self.$EventBus.$on('socketConnected', self.myInfo);
+        }
+
+        console.log('location.hash:', JSON.stringify(location.hash))
+        const params = new URLSearchParams(location.hash.substring(8));
+        const stateVal = params.get("state");
+        const codeVal = params.get("code");
+
+        console.log('info_state:', stateVal);
+        console.log('info_code:', codeVal);
+
+        const data = {
+                state:stateVal,
+                code:codeVal
+        }    
+
+        if(data.state!= null)
+        {
+            self.myKeepInCallback(data)	  
+        }      
+
+        MyKeepinManager.setDelegator(this) //2021.08.10 by lyk - 모바일 앱 마이키핀 설정 : delegator 설정
+    },   
+    created() {
+
+        this.$EventBus.$emit("mobile-nav-title", this.userInfoTitle);
+        this.$EventBus.$emit('mobile-nav-menus', ['back', 'noDefault', 'border','close']);
+
+        this.$EventBus.$on('mAccomoEditFlag', this.mAccomoEditPostNo);
+        this.$EventBus.$on('mWorkPlaceEditFlag', this.mWorkPlaceEditPostNo);
+        this.$EventBus.$on('mAccomoSendArr', this.mAccomoSendArr);    
+        this.$EventBus.$on('mWorkPlaceSendArr', this.mWorkPlaceSendArr);    
+        this.$EventBus.$on('mFundSendArr', this.mFundSendArr);   
+        this.$EventBus.$on('mAccomoSendVali', this.mAccomoSendVali);    
+        this.$EventBus.$on('mWorkPlaceSendVali', this.mWorkPlaceSendVali);    
+        this.$EventBus.$on('mFundSendVali', this.mFundSendVali);     
+
+        MyKeepinManager.setDelegator(this); //2021.08.10 by lyk - 모바일 앱 마이키핀 설정 : delegator 설정     
+    }, 
+    beforeDestroy(){
+        this.$EventBus.$off("mAccomoEditFlag",this.mAccomoEditPostNo);
+        this.$EventBus.$off("mWorkPlaceEditFlag",this.mWorkPlaceEditPostNo);         
+        this.$EventBus.$off('mAccomoSendArr', this.mAccomoSendArr);    
+        this.$EventBus.$off('mWorkPlaceSendArr', this.mWorkPlaceSendArr);    
+        this.$EventBus.$off('mFundSendArr', this.mFundSendArr);    
+        this.$EventBus.$off('mAccomoSendVali', this.mAccomoSendVali);    
+        this.$EventBus.$off('mWorkPlaceSendVali', this.mWorkPlaceSendVali);    
+        this.$EventBus.$off('mFundSendVali', this.mFundSendVali);     
+     
+
+        this.$EventBus.$off('socketConnected', this.myInfo);
+    }
+}
+
+</script>
+
+<style scoped>
+.pageTitle {
+    text-align: center;
+}
+.cell {
+    background: #f5f5f5;    
+    height: 40px;
+    line-height:40px;
+    font-size: 14px;
+    color: #212121;
+    border-bottom: 1px solid #cecece;
+}
+.title{
+    float:left;
+    padding-left:5%;
+    width:25%;
+    height:39px;
+    background: #3F51B5;
+    color: #fff;
+}
+
+.value {
+    float:left;
+    padding-left:5%;
+    width:70%; 
+    border: none;
+}
+.info {
+    font-size: 10pt;
+    color: #444;
+}
+.info_wrap{
+    float:left;
+    width:100%;
+}
+
+
+</style>

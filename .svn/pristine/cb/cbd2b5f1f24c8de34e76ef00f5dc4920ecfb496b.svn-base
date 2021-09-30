@@ -1,0 +1,25 @@
+.Vkeyboard_m_password ul,.Vkeyboard_pc_password li,.Vkeyboard_pc_password div,.Vkeyboard_pc_password input{margin:0;padding:0}
+.Vkeyboard_m_password ul,.Vkeyboard_pc_password li{list-style:none}
+.Vkeyboard_m_password{width:100%;display:block;margin:15px 0 10px 0;font-family:'Malgun Gothic', 맑은고딕, dotum, 돋움, sans-serif, Helvetica, AppleSDGothicNeo, sans-serif;font-size:12px}
+.Vkeyboard_m_password .password_enter_field{width:100%;float:left;text-align:center}
+.Vkeyboard_m_password .password_enter_field ul{width:100%;text-align:center}
+.Vkeyboard_m_password .password_enter_field ul li{display:inline-block}
+.Vkeyboard_m_password .password_enter_field ul li.controller{float:left}
+.Vkeyboard_m_password .password_enter_field ul li.controller img{margin-right:2px}
+.Vkeyboard_m_password .password_enter_field ul li.password{width:50%}
+.Vkeyboard_m_password .password_enter_field ul li.password input{width:100%;border:1px solid #A8BEDD;text-align:center;color:#6e6c6b;line-height:2.5em;font-size:18px}
+.Vkeyboard_m_password .password_enter_field ul li.password_confirm{float:right}
+.Vkeyboard_m_password .password_enter_field ul.divice_w640{display:none}
+.Vkeyboard_m_password .password_enter_field ul.divice_tablet{display:none}
+@media all and (min-width:640px) and (max-width:767px) {
+	.Vkeyboard_m_password .password_enter_field ul.divice_w320{display:none}
+    .Vkeyboard_m_password .password_enter_field ul.divice_w640{display:block}
+    .Vkeyboard_m_password .password_enter_field ul li.password input{line-height:3.2em;font-size:28px}
+}
+@media all and (min-width:768px){
+	.Vkeyboard_m_password .password_enter_field ul.divice_w320{display:none}
+    .Vkeyboard_m_password .password_enter_field ul.divice_tablet{display:block}
+    .Vkeyboard_m_password .password_enter_field ul li.password input{line-height:2em;font-size:28px}
+}
+
+

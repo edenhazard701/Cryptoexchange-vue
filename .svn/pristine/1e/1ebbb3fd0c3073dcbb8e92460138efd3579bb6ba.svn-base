@@ -1,0 +1,142 @@
+@charset "utf-8";
+* {
+  font-family:'맑은 고딕', 'malgun';  
+  color: #616161;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #fff;
+}
+
+ul,
+li {
+  margin: 0;
+}
+
+p {
+  margin: 0;
+  padding: 0;
+}
+
+.PageCommon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.PageCommon .logo .logo-txt {
+  display: block;
+  width: 224px;
+  height: 40px;
+  text-indent: -9999px;
+  background: url('../images/pc_01.png') no-repeat center top;
+  background-size: 100%;
+  margin: 0 auto;
+}
+
+.PageCommon .CommonNotice {
+  padding-top: 70px;
+}
+
+.PageCommon .CommonNotice .notice-tit {
+  padding: 180px 0 0;
+  margin-bottom: 30px;
+  font-size: 20px;  
+  line-height: 25px;
+  color: #ff1844;
+  text-align: center;
+  background: url('../images/pc_02.png') no-repeat center top;
+  background-size: 120px;
+}
+
+.PageCommon .CommonNotice .notice-txt {
+  line-height: 25px;
+  color: #616161;
+  text-align: center;
+}
+
+.PageCommon .CommonNotice .type2 {
+  width: 518px;
+  margin: 0 auto;
+}
+
+.PageCommon .CommonNotice .notice-info {
+  padding: 35px 0;
+  text-align: center;
+}
+
+.PageCommon .CommonNotice .info-tit {
+  font-size: 20px;
+  line-height: 20px;
+  text-align: center;
+}
+
+.PageCommon .CommonNotice .notice-info .info-lst {
+  display: inline-block;
+  overflow: hidden;
+  padding: 10px 40px;
+  background-color: #eee;
+}
+
+.PageCommon .CommonNotice .notice-info .info-lst>li {
+  text-align: left;
+  line-height: 27px;
+}
+
+@media screen and (min-width:320px) and (max-width:1080px) {
+  * {
+    font-size: 14px;
+    letter-spacing: -1px;
+  }
+
+  .PageCommon .logo .logo-txt {
+    width: 314px;
+    height: 56px;
+    background: url('../images/M_01.png') no-repeat center top;
+    background-size: 60%;
+  }
+
+  .PageCommon .CommonNotice {
+    padding-top: 0px;
+  }
+
+  .PageCommon .CommonNotice .notice-tit {
+    padding: 140px 0 0;
+    margin-bottom: 5px;
+    font-size: 20px;    
+    line-height: 20px;
+    text-align: center;
+    background: url('../images/M_02.png') no-repeat center top;
+    background-size: 25%;
+  }
+
+  .PageCommon .CommonNotice .notice-txt {
+    padding-top: 0px;
+    line-height: 20px;
+    white-space: pre-wrap;
+  }
+
+  .PageCommon .CommonNotice .type2 {
+    width: 320px;    
+  }
+
+  .PageCommon .CommonNotice .notice-info {
+    padding: 0px;
+  }
+
+  .PageCommon .CommonNotice .info-tit {
+    font-size: 16px;
+  }
+
+  .PageCommon .CommonNotice .notice-info .info-lst {
+    width: 342px;
+    padding: 15px 40px;
+  }
+}

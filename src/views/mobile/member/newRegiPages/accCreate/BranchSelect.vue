@@ -1,0 +1,182 @@
+<template>
+  <el-main class="bank-account-main">
+          <!-- 지점 선택 -->                 
+         <p style="padding-top:20px;
+                    font-size:15px;
+                    color:#212121;
+                    text-align:center;
+                    line-height:25px;">
+          계좌를 만들</p>  
+
+          <p style="padding-top:20px;
+                    font-size:15px;
+                    color:#212121;
+                    text-align:center;
+                    line-height:25px;">
+           <span style="font-size:18px;color:#212121;">지점</span>
+           을 선택해주세요.</p>
+               
+          <div style="padding-top:50px;width:200px;margin:auto">
+          
+                <el-select              
+                  v-model="branch"           
+                  @change="onBranchesChange"                                           
+                >           
+                  <el-option
+                    v-for="item in branches"
+                    :key="item.unit_code"
+                    :label="item.unit_kor_nm"
+                    :value="item.unit_code"                                        
+                    placeholder="지점선택">             
+                    <!-- <span style="float: center; color: #8492a6; font-size: 13px">{{ item.unit_kor_nm }}</span>                       -->
+                  </el-option>
+                </el-select>
+           
+          </div>
+
+          <div class="btm_fix_btn" >
+            <el-button  class="b_success_btn" @click.native.prevent="branchNext"  :disabled="branchNextDisabled">
+              다음</el-button >
+          </div>         
+
+	</el-main>
+</template>
+
+<script>
+import { mapGetters } from 'vuex'
+export default {	
+	data() {
+		return {   
+      authCi:'',
+      rspCnt:'',
+      branches:[],   
+      branch:'00001',
+      branchNextDisabled: true,
+      kovexYn:''
+      
+		}
+	},
+  computed : {
+    ...mapGetters(['getUnitcode', 'getAuthCi'])
+  },
+	methods : {	
+    getBranch(){
+      //지점 조회
+      let self = this;  
+      self.$socket.sendProcessByName('ac543', (queryData) => {
+          let block = queryData.getBlockData('InBlock1')[0];     
+          block['unit_code'] = '%'
+       //   console.log("unit_code:"+self.getUnitcode)               
+      }, function (queryData) {
+          if (queryData != null) {
+
+              self.rspCnt = queryData['queryObj']['OutBlock1'][0].rsp_cnt;  
+              self.branches = queryData['queryObj']['OutBlock2'];     
+              console.log("branches:" + JSON.stringify(self.branches)) 
+
+              //코벡스 계좌 보유시(계좌만들기 완료) - 지점 디폴트 
+              if( self.kovexYn == 'Y'  )
+              {
+                  self.branch = ''
+              }  //코벡스 계좌 미보유 or 계좌만들기 팝업창을 통해 진입한 경우 - 코벡스 디폴트
+              else if( self.kovexYn == 'N' || self.kovexYn == undefined)
+              {      
+                  self.branch = '00001'    
+                 // self.branches = [{unit_code:'00001', unit_kor_nm:"코벡스", unit_eng_nm:"Ko" }]
+              }
+             
+              self.branchNextDisabled = false
+              
+          } else {
+            // 전문 에러 언어팩 적용
+            const errorData = JSON.parse( window.sessionStorage.getItem('lastErrorData') );
+            if (errorData.trName != "ac543") return
+
+            self.$alert(self.$t('sys_err.' + errorData.errCode), '', {
+                dangerouslyUseHTMLString: true,
+                confirmButtonText: self.$t('sys_err.a001')
+            });
+          }
+        })      
+    },
+    //사용자 선택시 다음버튼 활성화
+    onBranchesChange() {
+      let self = this;
+      self.branchNextDisabled = false
+    },
+    branchNext(){
+      let self = this;  
+      //지점정보등록후 이동
+      self.$socket.sendProcessByName('ac106', (queryData) => {
+          let block = queryData.getBlockData('InBlock1')[0];        
+          block['auth_ci'] = self.getAuthCi             
+          block['unit_code'] = self.branch //3자리->5자리
+          console.log("block:" + JSON.stringify(block))
+      }, function (queryData) {
+          if (queryData != null) {
+
+              let res = queryData['queryObj']['OutBlock1'][0]; 
+            
+              //지점정보등록 성공시 이동
+              if(res.user_id)
+              {             
+                console.log("ac106_res.user_id :"+ res.user_id )
+
+                //ac519로 받은 user_id ac106 으로 덮어씌움
+                //로그인한 상태에서 계좌생성중에 물고다녀야 하는 유저아이디임                
+                //계좌생성정보 초기화 - 사용자성명, 생년월일, 코벡스보유YN 세개만 유지             
+                const userNm = self.$store.state.user.userAccCreationInfo.user_nm
+                const userBrthDay = self.$store.state.user.userAccCreationInfo.user_brth_day
+                const kovexYn = self.$store.state.user.userAccCreationInfo.kovex_yn
+                //초기화 후 다시 넣음
+                self.$store.state.user.userAccCreationInfo = {}
+                self.$store.state.user.userAccCreationInfo.user_nm = userNm
+                self.$store.state.user.userAccCreationInfo.user_brth_day = userBrthDay
+                self.$store.state.user.userAccCreationInfo.kovex_yn = kovexYn
+
+                self.$store.state.user.userAccCreationInfo.user_id = res.user_id 
+
+                console.log("userAccCreationInfo :"+ JSON.stringify(self.$store.state.user.userAccCreationInfo ))
+                self.$store.state.user.termFrom = 'BranchSelect'
+              
+                self.$router.push({name: 'mTermAgree'});  
+              }
+              
+          } else {
+            // 전문 에러 언어팩 적용
+            const errorData = JSON.parse( window.sessionStorage.getItem('lastErrorData') );
+            if (errorData.trName != "ac106") return
+
+            self.$alert(self.$t('sys_err.' + errorData.errCode), '', {
+                dangerouslyUseHTMLString: true,
+                confirmButtonText: self.$t('sys_err.a001')
+            });
+          }
+        })          
+    }
+
+	},
+  mounted(){
+        let self = this;  
+        self.authCi = self.$route.params.ci
+        console.log("authCi:"+  self.authCi );
+        self.kovexYn = self.$store.state.user.userAccCreationInfo.kovex_yn
+      //  console.log("userAccCreationInfo:"+  JSON.stringify(self.$store.state.user.userAccCreationInfo ));
+        console.log("kovexYn:"+  self.kovexYn );
+
+        if (self.$store.getters.isSocketConnected) {
+          self.getBranch();
+        } else {
+          self.$EventBus.$on('socketConnected', self.getBranch);
+        }
+  },
+  created() {
+        this.$EventBus.$emit("mobile-nav-title", "지점 선택");
+        this.$EventBus.$emit('mobile-nav-menus', ['back', 'noDefault', 'border','close']);
+  },
+  beforeDestroy() {      
+        this.$EventBus.$off('socketConnected', this.getBranch);
+  }
+};
+
+</script>

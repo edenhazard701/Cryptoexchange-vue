@@ -1,0 +1,534 @@
+<template>
+    <section>
+        <el-form ref="fundForm" :model="fundForm" label-position="left" label-width="120px" style="margin-top:20px">
+            <el-form-item label="자금 원천구분">       
+                    <el-select  v-model="fundResouceType" 
+                                @change="onFundResouceTypeChange"   
+                                :disabled="saveDisabled" 
+                                placeholder="선택하세요" 
+                                style="width: 200px;">
+                        <el-option
+                            v-for="fund in fundResouceTypes" 
+                            :key="fund.value"
+                            :label="fund.label"
+                            :value="fund.value"
+                          >
+                        </el-option>
+                    </el-select>
+            </el-form-item>
+           
+            <div v-if="fundResouceInputVisible" prop="etcFundResourceType">
+                <el-form-item label="기타">      
+                    <el-input type="text" placeholder="기타" id="fundresInputMyInfo" auto-complete="off" @change="changeFundResouceInput" v-model="fundForm.etcFundResourceType" maxlength="10"  :disabled="saveDisabled"></el-input>
+                </el-form-item>
+            </div>
+                        
+           <el-form-item label="거래목적">   
+                    <el-select  v-model="tradePurpose" 
+                                @change="onTradePurposeChange"  
+                                :disabled="saveDisabled" 
+                                placeholder="선택하세요">
+                        <el-option
+                            v-for="deal in tradePurposes" 
+                            :key="deal.value"
+                            :label="deal.label"
+                            :value="deal.value"
+                           >
+                        </el-option>
+                    </el-select>
+           </el-form-item>
+ 
+            <div v-if="tradePurposeInputVisible" prop="etcTradePurpose">
+                <el-form-item label="기타">      
+                    <el-input type="text" placeholder="기타" id="tradePurposeInputMyInfo" auto-complete="off" @change="changeTradePurposeInput" v-model="fundForm.etcTradePurpose" maxlength="10"  :disabled="saveDisabled"></el-input>
+                </el-form-item>
+            </div>
+
+            <div class="btm-buttons">
+                <el-button type="primary"  style="width: 120px;"  @click="investInfoUpdate" :disabled="saveDisabled">{{'저장'}}</el-button>
+            </div>
+        </el-form>
+    </section>
+</template>
+
+
+<script>
+import { mapGetters } from 'vuex'
+export default {
+
+    computed:{
+        ...mapGetters({
+            getUserId : 'getUserId',
+            getAuthCi : 'getAuthCi'
+        })
+    },
+	data() {
+		return {
+            fundForm: {
+                etcFundResourceType: '',
+                etcTradePurpose: ''
+            },
+
+            fundResouceTypes: [
+            {
+                value: 'A01',
+                label: '근로및연금소득'
+            }, 
+            {
+                value: 'A02',
+                label: '퇴직소득'
+            },{
+                value: 'A03',
+                label: '사업소득'
+            },
+            {
+                value: 'A04',
+                label: '부동산임대소득'
+            },
+            {
+                value: 'A05',
+                label: '부동산양도소득'
+            },
+            {
+                value: 'A06',
+                label: '금융소득(이자 및 배당)'
+            },
+            {
+                value: 'A07',
+                label: '상속/증여'
+            },
+            {
+                value: 'A08',
+                label: '일시 재산양도로 인한 소득'
+            },
+            {
+                value: 'A99',
+                label: '기타'           
+            }],
+            fundResouceType: '',
+
+            tradePurposes: [
+            {
+                value: '01',
+                label: '급여 및 생활비'
+            }, 
+            {
+                value: '02',
+                label: '저축 및 투자'
+            },{
+                value: '03',
+                label: '보험료납부 결제'
+            },
+            {
+                value: '04',
+                label: '공과급납부 결제'
+            },
+            {
+                value: '05',
+                label: '카드대금 결제'
+            },
+            {
+                value: '06',
+                label: '대출원리금 상환 결제'
+            },
+            {
+                value: '07',
+                label: '사업상거래'
+            },
+            {
+                value: '08',
+                label: '보장'
+            },
+            {
+                value: '09',
+                label: '상속'
+            },
+            {
+                value: '99',
+                label: '기타(기재)'
+            }],
+            tradePurpose: '',
+            tradePurposeInputVisible:false,
+            fundResouceInputVisible:false,
+
+            userId: '',      
+            saveDisabled:false,
+
+            //MyInfo 정보편집 저장 시 필요한 값
+            myInfoArr: {
+                //자택정보
+                saveAccomoArr: {
+                    user_eng_nm: '',
+                    user_eng_surnm: '',
+                    home_pst_no: '',
+                    home_addr: '',
+                    home_addr_dtl: '',
+                    home_area_code: '',
+                    home_phon_no: ''
+                },
+
+                //직장정보
+                saveWorkPlaceArr: {
+                    job_tp: '',
+                    job_kind: '',
+                    job_position_code: '',
+                    ofc_nm: '',
+                    ofc_dept_nm: '',
+                    ofc_pst_no: '',
+                    ofc_addr: '',
+                    ofc_addr_dtl: '',
+                    ofc_area_code: '',
+                    ofc_phon_no: ''
+                },
+
+                //자금정보
+                saveFundArr: {
+                    fund_src_tp: '',
+                    fund_src_etc: '',
+                    trd_purp_cd: '',
+                    trd_purp_etc: ''
+                }
+            }        
+        };
+	},
+
+    computed:{
+        ...mapGetters(['getUserId','getUnitcode'])
+    },
+
+	methods: { 
+       
+        //자금 원천구분
+        onFundResouceTypeChange()
+        {
+            let self = this;
+            if(self.fundResouceType == 'A99' ) //기타 선택시
+            {       
+                self.fundResouceInputVisible = true        
+                  
+            }else
+            {
+                self.fundResouceInputVisible = false        
+            }         
+        },    
+
+        //거래 목적
+        onTradePurposeChange()
+        {
+            let self = this;
+            if(self.tradePurpose == '99' ) //기타 선택시
+            {       
+                self.tradePurposeInputVisible = true                              
+            }else
+            {
+                self.tradePurposeInputVisible = false        
+            }                
+        },
+              
+        FundInfo(){
+            let self = this;         
+            console.log('MyFundInfo')            
+        },    
+        //직장정보 받아옴
+        workPlaceSendArr(data){
+            if(data)
+            {              
+                this.myInfoArr = data
+                console.log("myInfoArr3: " + JSON.stringify( this.myInfoArr))
+            }
+        },
+
+        //회원정보DB 저장
+        saveAll(){
+            let self = this;           
+          
+            try{
+                self.fundSave()
+                            
+            }
+            catch(e){
+                console.log("error: " + JSON.stringify(e))
+            }        
+        },
+
+        fundSave(){               
+         
+            this.myInfoArr.saveFundArr.fund_src_tp   = this.fundResouceType
+            this.myInfoArr.saveFundArr.fund_src_etc  = this.fundForm.etcFundResourceType        
+            this.myInfoArr.saveFundArr.trd_purp_cd   = this.tradePurpose      
+            this.myInfoArr.saveFundArr.trd_purp_etc  = this.fundForm.etcTradePurpose                
+            console.log("myInfoArrTotal:"+  JSON.stringify(this.myInfoArr))      
+            
+            this.updateResidenceInfo()        
+        },        
+            
+        //고객거주정보 편집
+        updateResidenceInfo()
+        {
+            let self = this;    
+            self.$socket.sendProcessByName('ac117', (queryData) => {
+                let block               = queryData.getBlockData('InBlock1')[0];
+                block['user_id']        = self.getUserId      
+                block['user_eng_nm']    = self.myInfoArr.saveAccomoArr.user_eng_nm
+                block['user_eng_surnm'] = self.myInfoArr.saveAccomoArr.user_eng_surnm 
+                block['home_pst_no']    = self.myInfoArr.saveAccomoArr.home_pst_no
+                block['home_addr']      = self.myInfoArr.saveAccomoArr.home_addr        
+                block['home_addr_dtl']  = self.myInfoArr.saveAccomoArr.home_addr_dtl      
+                block['home_area_code'] = self.myInfoArr.saveAccomoArr.home_area_code      
+                block['home_phon_no']   = self.myInfoArr.saveAccomoArr.home_phon_no      
+
+                console.log("block:" + JSON.stringify(block))
+            }, function (queryData) {
+                if (queryData != null) {
+
+                    let result = queryData['queryObj']['OutBlock1'][0];             
+
+                    //고객거주정보 수정 성공시
+                    console.log("고객 거주정보 수정 성공");   
+                    self.updateJobInfo()                                   
+                    
+                } else {
+                    // 전문 에러 언어팩 적용
+                    const errorData = JSON.parse( window.sessionStorage.getItem('lastErrorData') );
+                    if (errorData.trName != "ac117") return
+
+                    self.$alert(self.$t('sys_err.' + errorData.errCode), '', {
+                        dangerouslyUseHTMLString: true,
+                        confirmButtonText: self.$t('sys_err.a001')
+                    });
+                }
+            })     
+        },
+        
+        //고객직장정보편집
+        updateJobInfo()
+        {
+            let self = this;             
+            self.$socket.sendProcessByName('ac125', (queryData) => {
+                let block                  = queryData.getBlockData('InBlock1')[0];
+                block['user_id']           = self.getUserId             
+                block['job_tp']            = self.myInfoArr.saveWorkPlaceArr.job_tp
+                block['job_kind']          = self.myInfoArr.saveWorkPlaceArr.job_kind
+                block['job_position_code'] = self.myInfoArr.saveWorkPlaceArr.job_position_code   
+                block['ofc_nm']            = self.myInfoArr.saveWorkPlaceArr.ofc_nm
+                block['ofc_dept_nm']       = self.myInfoArr.saveWorkPlaceArr.ofc_dept_nm
+                block['ofc_pst_no']        = self.myInfoArr.saveWorkPlaceArr.ofc_pst_no 
+                block['ofc_addr']          = self.myInfoArr.saveWorkPlaceArr.ofc_addr
+                block['ofc_addr_dtl']      = self.myInfoArr.saveWorkPlaceArr.ofc_addr_dtl
+                block['ofc_area_code']     = self.myInfoArr.saveWorkPlaceArr.ofc_area_code
+                block['ofc_phon_no']       = self.myInfoArr.saveWorkPlaceArr.ofc_phon_no
+
+                console.log("block:" + JSON.stringify(block))
+            }, function (queryData) {
+                if (queryData != null) {
+
+                    let result = queryData['queryObj']['OutBlock1'][0];            
+
+                    //고객 직장정보 수정 성공시
+                    console.log("고객 직장정보 수정 성공");               
+                    self.updateInvestInfo()
+                    
+                } else {
+                    // 전문 에러 언어팩 적용
+                    const errorData = JSON.parse( window.sessionStorage.getItem('lastErrorData') );
+                    if (errorData.trName != "ac125") return
+
+                    self.$alert(self.$t('sys_err.' + errorData.errCode), '', {
+                        dangerouslyUseHTMLString: true,
+                        confirmButtonText: self.$t('sys_err.a001')
+                    });
+                }
+            })     
+        },
+
+        //자금 정보 편집
+        updateInvestInfo() {
+            let self = this;  
+            
+            self.$socket.sendProcessByName('ac149', (queryData) => {
+                var block = queryData.getBlockData('InBlock1')[0];
+                block['user_id'] = self.getUserId              
+                block['fund_src_tp'] = self.myInfoArr.saveFundArr.fund_src_tp
+                block['fund_src_etc'] = self.myInfoArr.saveFundArr.fund_src_etc 
+                block['trd_purp_cd'] = self.myInfoArr.saveFundArr.trd_purp_cd
+                block['trd_purp_etc'] = self.myInfoArr.saveFundArr.trd_purp_etc 
+                console.log("block:" + JSON.stringify(block))
+            }, function (queryData) {
+                if (queryData != null) {           
+
+                    let result = queryData['queryObj']['OutBlock1'][0]; 
+
+                    //고객 자금 정보 수정 성공시
+                    console.log("고객 자금 정보 수정 성공");               
+
+                    self.$alert('정보업데이트가 완료되었습니다.', '', {					
+                        confirmButtonText: '확인'
+                    }).then(()=>{
+
+                        //고객자금정보입력 성공시 이동    
+                        self.$EventBus.$emit('mySavedLvl3');
+                        //저장버튼 포함 모두 비활성화
+                        self.saveDisabled = true
+
+                        //자금정보입력 성공시 로그인 완료
+                        self.getAccLoginInfo()
+                    });       
+                    
+                } else {
+                    // 전문 에러 언어팩 적용
+                    const errorData = JSON.parse( window.sessionStorage.getItem('lastErrorData') );
+                    if (errorData.trName != "ac149") return
+
+                    self.$alert(self.$t('sys_err.' + errorData.errCode), '', {
+                        dangerouslyUseHTMLString: true,
+                        confirmButtonText: self.$t('sys_err.a001')
+                    });
+                }
+            })     
+        },    
+     
+        //자금 정보 편집
+        // updateInvestInfo() {
+        //     let self = this;  
+    
+        //     self.$socket.sendProcessByName('ac149', (queryData) => {
+        //         let block = queryData.getBlockData('InBlock1')[0];
+        //         block['user_id'] = self.getUserId              
+        //         block['fund_src_tp'] = self.fundResouceType
+        //         block['fund_src_etc'] = self.fundForm.etcFundResourceType //한글20자
+        //         block['trd_purp_cd'] = self.tradePurpose
+        //         block['trd_purp_etc'] = self.fundForm.etcTradePurpose //한글20자
+
+        //         console.log("block:" + JSON.stringify(block))
+        //     }, function (queryData) {
+        //         if (queryData != null) {
+
+        //             let result = queryData['queryObj']['OutBlock1'][0]; 
+        //               self.$alert('정보업데이트가 완료되었습니다.', '', {					
+		// 				confirmButtonText: '확인'
+		// 			}).then(()=>{
+
+        //                 //고객자금정보입력 성공시 이동    
+        //                 self.$EventBus.$emit('mySavedLvl3');
+        //                 //저장버튼 포함 모두 비활성화
+        //                 self.saveDisabled = true
+
+        //                 //자금정보입력 성공시 로그인 완료
+        //                 self.getAccLoginInfo()
+        //             });          
+                    
+        //         } else {
+        //             // 전문 에러 언어팩 적용
+        //             const errorData = JSON.parse( window.sessionStorage.getItem('lastErrorData') );
+        //             if (errorData.trName != "ac149") return
+
+        //             self.$alert(self.$t('sys_err.' + errorData.errCode), '', {
+        //                 dangerouslyUseHTMLString: true,
+        //                 confirmButtonText: self.$t('sys_err.a001')
+        //             });
+        //         }
+        //     })     
+        // },
+       
+
+        //계정로그인처리
+        getAccLoginInfo()
+        {
+            let self = this  
+
+            // pre login 처리
+            self.$store.dispatch('preLogin', {
+                auth_ci: self.getAuthCi
+            }).then((data) => {
+                console.log('preLogin Success')
+                let userId = data.user_id    
+                let unitCode = data.unit_code   
+                //login 처리
+                if(userId != '' &&  unitCode != '')
+                {
+                    self.$store.dispatch('login', {
+                        user_id : userId, 
+                        auth_mobl_no :  self.$store.state.user.registration.mobileNo
+                    }).then((data) => {
+                        console.log('login Success')  
+                        if(self.unitCode == data.unitCode)
+                        {
+                            console.log('login Success')    
+                        }
+                    });
+                }       
+            })    
+        },
+
+        investInfoUpdate() { 
+             let self = this;
+             if( (self.fundResouceType == 'A99' && $.trim($('#fundresInputMyInfo').val()) == '') || 
+                 (self.tradePurpose == '99' && $.trim($('#tradePurposeInputMyInfo').val()) == '')) {
+               
+                 self.$alert('자금정보 입력을 완료해 주세요.', '', {
+                     confirmButtonText: '확인'
+                 });
+             } else {
+
+                self.$confirm('정보 업데이트를 완료하시겠습니까?', '', {
+					cancelButtonText: '취소',
+					confirmButtonText: '확인'
+				}).then(() => {
+
+                    self.saveAll()
+                   // self.updateInvestInfo()				
+				});      
+             }
+        },    
+      
+        fundInfoLook() { 
+            let self = this;
+
+            self.$socket.sendProcessByName('ac511', (queryData) => {
+                let block = queryData.getBlockData('InBlock1')[0];
+                block['user_id'] = self.getUserId                
+                }, function (queryData) {
+                if (queryData != null) {           
+                    const res = queryData['queryObj']['OutBlock1'][0]
+                    console.log("fundInfoLook_res:"+JSON.stringify(res))   
+
+                    self.fundResouceType = res.fund_src_tp;
+                    self.fundForm.etcFundResourceType = res.fund_src_etc;
+                    self.tradePurpose = res.trd_purp_cd;
+                    self.fundForm.etcTradePurpose = res.trd_purp_etc;
+
+                    //기타 이면 인풋박스보이기
+                    self.onFundResouceTypeChange()                  
+                    self.onTradePurposeChange()
+
+                } else {
+                    // 전문 에러 언어팩 적용
+                    const errorData = JSON.parse( window.sessionStorage.getItem('lastErrorData') );
+                    if (errorData.trName != "ac511") return
+                    console.log("CODE:" + errorData.errCode);  
+                }
+            })
+        },
+    },
+   
+    mounted(){
+        let self = this;
+        if (self.$store.getters.isSocketConnected) {
+            self.fundInfoLook();
+        } else {
+            self.$EventBus.$on('socketConnected', self.fundInfoLook);
+        }    
+    },    
+         
+    created() {      
+        this.$EventBus.$on('FundInfo', this.FundInfo);
+        this.$EventBus.$on('workPlaceSendArr', this.workPlaceSendArr);           
+    },   
+    beforeDestroy() {
+        this.$EventBus.$off('FundInfo', this.FundInfo);  
+        this.$EventBus.$off('workPlaceSendArr', this.workPlaceSendArr);         
+        this.$EventBus.$off('socketConnected', this.fundInfoLook);    
+    }
+}
+
+</script>

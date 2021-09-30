@@ -1,0 +1,74 @@
+<html><head><title>SystemTradingHelp</title>
+<style type="text/css">
+body,td {font-family: "돋움", "Arial", "Verdana";	font-size: 12px;}
+
+font.link { color: blue; text-decoration: underline; CURSOR: hand }
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head>
+
+<BODY leftmargin="10" topmargin="10" marginwidth="10" marginheight="10">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr> 
+    <td>이격도</td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td><table width="100%" border="0" cellpadding="10" cellspacing="1" bgcolor="D1D5DC">
+        <tr> 
+          <td bgcolor="F3F3F3" style="line-height:140%;"><p><strong><font color="0886B1">1. 
+              의미</font></strong><br>
+              <br>
+              주가는 이동평균선으로부터 멀어지면 언젠가는 다시 이동평균선으로 되돌아 오려는 특성이 있는데,<br>
+              이 성질을 수치화한 것이 이격도입니다. 이격도란 주가가 이동평균선과 어느 정도 떨어져 있는가를 분석한 것입니다.</p></td>
+        </tr>
+      </table></td>
+  </tr>
+  <tr> 
+    <td height="5">&nbsp;</td>
+  </tr>
+  <tr> 
+    <td><table width="100%" border="0" cellpadding="10" cellspacing="1" bgcolor="D1D5DC">
+        <tr> 
+          <td valign="top" bgcolor="F3F3F3" style="line-height:140%;"> <p><strong><font color="0886B1">2. 
+              계산식 </font></strong></p>
+            <p> (당일주가/당일 이동평균주가) * 100<br>
+              기본설정값: 20일,60일</p>
+            </td>
+        </tr>
+      </table></td>
+  </tr>
+  <tr> 
+    <td height="5">&nbsp;</td>
+  </tr>
+  <tr> 
+    <td><table width="100%" border="0" cellpadding="10" cellspacing="1" bgcolor="D1D5DC">
+        <tr> 
+          <td bgcolor="F3F3F3" style="line-height:140%;"><p><strong><font color="0886B1">3. 
+              적용방법</font></strong><br>
+              <br>
+              이격도의 해석은 상승국면과 하락국면에 따라서 조금 차이가 있습니다.<br>
+              단기 이동평균은 20일을 장기이동평균은 60일을 주로 이용하여 분석합니다.</p>
+            <p> <img src="img/n1.gif" width="11" height="11" align="absmiddle"> 
+              상승 국면일때<br>
+              20일 이동 평균인 경우 106% 이상이면 매도 시점, 98% 수준이면 매수 시점<br>
+              60일 이동 평균인 경우 110% 이상이면 매도 시점, 98% 수준이면 매수 시점<br>
+              <br>
+              <img src="img/n2.gif" width="11" height="11" align="absmiddle"> 
+              하강 국면일때<br>
+              20일 이동 평균인 경우 102% 이상이면 매도 시점, 92% 수준이면 매수 시점<br>
+              60일 이동 평균인 경우 104% 이상이면 매도 시점, 88% 수준이면 매수 시점<br>
+            </p>
+            </td>
+        </tr>
+      </table></td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+</body>
+
+</html>

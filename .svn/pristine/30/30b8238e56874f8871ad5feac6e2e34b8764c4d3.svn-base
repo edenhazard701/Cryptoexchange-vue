@@ -1,0 +1,654 @@
+<template>
+  <el-main class="EtcVue LoginVue">
+    <div class="mypage_cont">
+      <h3 class="mypage-logo">KOVEX</h3>
+      <div class="mypage-site">{{$t('m_login.a008')}}<!-- 로그인 전에 사이트 주소가 아래와 같은지 확인하세요. -->
+        <div class="site-url">https://www.kovex.co.kr</div>
+      </div>
+      <el-form ref="form" :model="form" label-width="0px" class="login-form">
+
+        <el-row type="flex" justify="center" style="font-size:15px">
+          마이키핀앱에서 QR 인증하면 로그인이 완료됩니다.
+        </el-row>
+        <el-row type="flex" justify="center">
+          <el-col :span="8">
+             <div  @click="mainGo" style="margin:10px 10px 10px 0px">
+               <img :src="require('@/images/@temp/mykeypin.png')"  alt="mykeypin">            
+             </div>
+          </el-col>
+          <el-col :span="16" style="margin:auto">            
+             <div>              
+                  <!--QR코드-->                  
+                  <!-- <div id="myKeepin_iframe" width="100%" scrolling="auto" frameborder="0"></div>                   -->
+                  <el-button @click="myKeepInCertWindow">마이키핀 계정으로 로그인</el-button>
+             </div>          
+          </el-col>
+        </el-row>
+     
+        <el-row style="margin-top:-10px">
+          <div class="bottom-buttons">
+            <el-button type="text" @click="signupClicked">처음이세요?<!--회원가입--></el-button>            
+          </div>
+        </el-row>
+      </el-form>
+
+      <user-day-cnt-guide></user-day-cnt-guide>
+      <user-day-cnt-over></user-day-cnt-over>
+
+    </div> 
+	</el-main> 
+</template>
+
+<script>
+import { myKeepInLogin, myKeepInVerifyAuthInfo, myNodeServerAuthVerify, myNodeServerAuth } from '@/api/myKeepinRequest';
+import userDayCntGuide from "./common/UserDayCntGuide.vue";
+import userDayCntOver from "./common/UserDayCntOver.vue";
+export default {
+  components: {
+
+      userDayCntGuide,
+      userDayCntOver
+    //'vue-recaptcha': VueRecaptcha
+  },
+  data() {
+    return {
+      // showReCaptcha:false,
+      // checkRecaptcha:false,
+      logining: false,
+      autoLogin: false,
+      form: {
+       
+      },
+
+      uuid:'',
+      serviceIdData : 'd5abd0d9-4dc1-4a0f-84ce-89df21f46a5e', 
+      stateData:'',     //SP 서버에서 생성한 값
+      codeData:'',      //인증서버에서 받아온 값
+      didData:'',       //사용자의 DID 를 알고 있는 경우 설정
+                        //MyKeepin 앱에 did가 다르면 에러코드 '2'반환
+      dataHashData:'',  //요청내용에 대한 hash 값
+                        //인증 요청에 대한 데이터를 해시한 hex string 값
+                        //SP 서버에서 서명 검증시 동일한 방법으로 구해야 함.
+                        //null 가능
+                      
+      vpData:'',
+      signatureData:'',
+
+      credentialData: [],
+      authCi:'',
+      mobileNo:'',
+
+      //SP서버 에 보낸 데이터 검증요청 결과값
+      dataVerification:'',    
+      
+      accLoginInfo: [],
+             
+      dayCnt:0,  
+      dayCntParams:[],
+
+      myKeepinQRcodePopup:'',    
+      myKeepinURL:'https://univax.kovex.co.kr/static/browser/mykeepin/login.html',
+      authMyKeepinURL:'https://auth.mykeepin.com/didauth/v1/authorize/view'
+    }
+  },
+  methods: {
+    // onCaptchaVerified(){
+    //   console.log('로봇 체크함')
+    //   this.checkRecaptcha = true
+    // },
+    // onCaptchaExpired(){
+    //   console.log('로봇 체크안함')
+    //   this.checkRecaptcha = false
+    // },
+
+    // 듀얼스크린 화면 중앙 정렬  ------------------------------------------------------------- 
+   /*  centerPopup(uri){
+
+      const dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : window.screenX;
+      const dualScreenTop = window.screenTop != undefined ? window.screenTop : window.screenY;
+      
+      const width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+      const height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+      
+      const wVal = 400;
+      const hVal = 900;    
+
+      const systemZoom = width / window.screen.availWidth;
+      const left = (width - wVal) / 2 / systemZoom + dualScreenLeft
+      const top = (height - hVal) / 2 / systemZoom + dualScreenTop    
+
+      self.myKeepinQRcodePopup =  window.open(uri,'myKeepInPopup', 
+              ` 
+                scrollbars=no,
+                width=${wVal / systemZoom}, 
+                height=${hVal / systemZoom}, 
+                top=${top}, 
+                left=${left}
+              `
+            )
+
+      if (window.focus) {
+          self.myKeepinQRcodePopup.focus();
+      }      
+    }, */
+      
+    //마이키핀 회원가입 인증요청(post 방식:QR코드 못 가져옴)
+/*     myKeepInCertPost(){
+      let self = this      
+
+      //UUID 생성
+      self.uuid = self.guid();      
+
+      myKeepInLogin({ 
+        stateData: self.uuid   
+      })
+      .then(html => {
+            console.log("Success:myKeepInLogin");       
+          
+            // Initialize the DOM parser
+            var parser = new DOMParser();
+
+            // Parse the text
+            var doc = parser.parseFromString(html, "text/html");
+            console.log(doc);   
+
+            // You can now even select part of that html as you would in the regular DOM 
+            // Example:
+            // var docArticle = doc.querySelector('article').innerHTML;
+                        
+            $(function(){
+              $("#root").load(doc); 
+            });     
+            
+            //display QRcode     
+            // document.getElementById('myKeepin_iframe').appendChild(doc);      
+            
+            return
+
+      }).catch(err => {
+          console.log('Failed to fetch page: ', err);  
+      })    
+    }, */
+    //UUID 생성
+    guid() {
+      function _s4() {
+        return ((1 + Math.random()) * 0x10000 | 0).toString(16).substring(1);
+      }
+      return _s4() + _s4() + '-' + _s4() + '-' + _s4() + '-' + _s4() + '-' + _s4() + _s4() + _s4();
+    },   
+    //로컬 테스트용
+    checkCert(){
+      let self = this    
+      
+      //마이키핀에 인증요청     
+    // self.myKeepInCert()
+  
+      self.stateData = '2c7384f1-2ce7-d174-9d39-3c9d68dfbfb2'
+      self.codeData = 'e90ddd2a-6543-4a5e-97cc-519fa442c1d3'    
+
+      //인증서버에 인증요청 
+    self.getMyKeepInVerifiedResult(self.stateData,self.codeData )
+      
+    }, 
+    //로컬 테스트용
+    myKeepInCert(){
+      let self = this       
+
+      //UUID 생성
+      self.uuid = self.guid();      
+      //console.log("uuid:"+self.uuid)
+			var params = {
+				service_id : 'd5abd0d9-4dc1-4a0f-84ce-89df21f46a5e',    //코백스 전용 service_id
+				redirect_uri : 'https://univax.kovex.co.kr/index.html',  //리다이렉트 될 코벡스페이지
+				state : self.uuid,
+				type : '2',  //간편로그인
+        did: '',  //필수아님
+        data: ''  //필수아님
+			};
+			console.log("params:"+JSON.stringify(params));
+
+      var url = "https://auth.mykeepin.com/didauth/v1/authorize/view?";
+    
+      console.log("state:"+self.uuid);      
+
+      window.open(url + "&service_id="+params.service_id+"&state="+params.state+"&type="+params.type+"&redirect_uri="+params.redirect_uri+"", "_blank")
+    	
+    },
+    //마이키핀 로긴 인증요청(get 방식:QR코드 가져옴)
+    myKeepInCertWindow(){
+        let self = this      
+        self.uuid = self.guid();      
+      
+        const params = {
+          service_id : self.serviceIdData,  //코백스 전용 service_id
+          redirect_uri : self.myKeepinURL,  //리다이렉트 될 코벡스페이지  
+          state : self.uuid,
+          type : '2',  //간편로그인
+          did: '',  //필수아님
+          data: ''  //필수아님
+        };
+        console.log("params:"+JSON.stringify(params));
+
+        const url = self.authMyKeepinURL + '?'
+
+        const MKPN_URL = url + "service_id="+params.service_id+"&redirect_uri="+params.redirect_uri+"&state="+params.state+"&type="+params.type+""
+        console.log("MKPN_URL:"+self.MKPN_URL)
+        //페이지 전체 마이키핀으로 대체 
+        window.location.href = MKPN_URL;
+        //팝업으로 띄움(메인윈도우로 값(state, code) 전달 불가하여 사용 못함)
+        //self.centerPopup(MKPN_URL)     
+    }, 
+  
+    //리다이렉트로 받은 파라미터 핸들링    
+    myKeepInCallback(val) {
+			let self = this;          
+
+      console.log('myKeepInCallback:', JSON.stringify(val));   
+      
+      //리다이렉트로 파라미터 받은 후 팝업을 닫는다 
+      // if(self.myKeepinQRcodePopup) 
+      // {
+      //   self.myKeepinQRcodePopup.close()    
+      // }
+
+      if(val.state)
+      {
+        self.stateData = val.state;	
+        self.codeData = val.code;
+       
+        //Verify Auth Info 호출
+        self.getMyKeepInVerifiedResult( self.stateData, self.codeData )    
+      }      
+    },      
+  
+    //인증서버에 인증요청
+    getMyKeepInVerifiedResult(dt1, dt2){
+      let self = this
+      myKeepInVerifyAuthInfo({ //-> did vp, signature 값을 받아옴    
+        stateData: dt1,
+        codeData:  dt2     
+      })
+      .then(res => {
+        console.log("Success:myKeepInVerifyAuthInfo");       
+        self.didData = res.did
+        self.vpData = res.vp
+        self.signatureData = res.signature
+        
+      //  console.log("didData : "+  self.didData )
+      //  console.log("vpData :"+  self.vpData )
+      //  console.log("signatureData :"+  self.signatureData )        
+
+        self.getUserInfoVerifiedResult()
+        
+        return
+
+      }).catch(err => {
+        if(typeof err.status != "undefined" && err.status != '200')
+        {
+            console.log(new Error( err.status + ": Request is failed" ));     
+            self.$alert(self.$t('mykeepin_err.' + err.status ), '', {
+              dangerouslyUseHTMLString: true,
+              confirmButtonText: self.$t('sys_err.a001')
+            });            
+            return         
+        }
+      })    
+    },
+    //사용자데이터검증
+    getUserInfoVerifiedResult()
+    { 
+        let self = this
+        myNodeServerAuthVerify({   
+
+          didData:  self.didData,   
+          stateData: self.stateData,
+          typeData: '2',
+          codeData: self.codeData,
+          signatureData:  self.signatureData
+
+        }).then(res => {       
+          //데이터 검증 성공
+          if(res == true )
+          {
+              console.log("Success:myNodeServerAuthVerify");
+              self.dataVerification = true
+              //사용자정보 가져옴
+              self.getUserInfo()
+          }
+          else{   //데이터 검증 실패
+              self.$alert('인증에 실패했습니다.<br> 마이키핀 계정정보를 다시 확인해주세요.', '', {
+                  dangerouslyUseHTMLString: true,
+                  confirmButtonText: self.$t('sys_err.a001')
+              });
+          }  
+          return      
+
+        }).catch(err => {
+          if(typeof err.status != "undefined" && err.status != '200')
+          {
+              console.log(new Error( err.status + ": Request is failed" ));   
+              self.$alert(self.$t('mykeepin_err.' + err.status ), '', {
+                dangerouslyUseHTMLString: true,
+                confirmButtonText: self.$t('sys_err.a001')
+              });                      
+            return  
+          }   
+        })    
+    },
+    //사용자정보 받아옴
+    getUserInfo()
+    { 
+        let self = this
+        //사용자정보 받아옴
+        myNodeServerAuth({        
+          didData:  self.didData,   
+          vpData: self.vpData       
+        }).then(res => {       
+          //데이터 검증 성공        
+         // self.credentialData = res      
+          self.authCi = res[1].vc.credentialSubject.ci 
+          self.mobileNo = res[0].vc.credentialSubject.mobileNumber
+          console.log("Success:myNodeServerAuth");
+        //  console.log("credentialData:" + JSON.stringify( self.credentialData));    
+          
+          //credentialData:[{"sub":"did:meta:000000000000000000000000000000000000000000000000000000000004a22f","iss":"did:meta:000000000000000000000000000000000000000000000000000000000000052f","exp":1687964399,"iat":1624929536,"nonce":"5ab98bdd-723a-4093-a3b1-8c4e666e9d92","vc":{"@context":["https://w3id.org/credentials/v1"],"type":["VerifiableCredential","MobileNumberCredential"],"credentialSubject":{"mobileNumber":"01094898114"}},"jti":"https://attestator.metadium.com/credentials/xQg8x7W-R6OEXjMI0hJ1VA"},{"sub":"did:meta:000000000000000000000000000000000000000000000000000000000004a22f","iss":"did:meta:000000000000000000000000000000000000000000000000000000000000052f","exp":1687964399,"iat":1624929536,"nonce":"4575fef9-9443-4fd1-8cc3-a692223064d5","vc":{"@context":["https://w3id.org/credentials/v1"],"type":["VerifiableCredential","CiCredential"],"credentialSubject":{"ci":"nxnluP/9PdyIxtsqgi5mHuXiAjc1ziIDCTR5qx+e61wDdvyQPB0X0pQl/cM3CuW6wsv8bt+032b/qSbXn9bFVw=="}},"jti":"https://attestator.metadium.com/credentials/xQg8x7W-R6OEXjMI0hJ1VA"}]
+          console.log("authCi:" + JSON.stringify( self.authCi));    
+          console.log("mobileNo:" + JSON.stringify( self.mobileNo));    
+          
+          //간편로그인시 받은 CI 저장하고 계좌생성정보 불러올 때 사용    
+          //CI정보 세션에 저장   
+          self.$store.state.user.registration.authCi =  self.authCi
+          self.$store.state.user.registration.mobileNo =  self.mobileNo 
+
+          //계정로그인처리
+          self.regiUserVerifiedInfo()
+          return  
+        }).catch(err => {
+          if(typeof err.status != "undefined" && err.status != '200')
+          {
+            console.log(new Error( err.status + ": Request is failed" ));   
+            self.$alert(self.$t('mykeepin_err.' + err.status ), '', {
+              dangerouslyUseHTMLString: true,
+              confirmButtonText: self.$t('sys_err.a001')
+            });      
+            return
+          }   
+        })
+    },     
+    
+    //계정로그인처리
+    regiUserVerifiedInfo()
+    {
+         let self = this
+
+        // pre login 처리
+          self.$store.dispatch('preLogin', {
+            auth_ci: self.authCi       
+          }).then((data) => {
+
+            console.log('preLogin Success')
+
+            let userId = data.user_id    
+            let unitCode = data.unit_code
+            
+            //login 처리
+            if(userId != '' &&  unitCode != '')
+            {
+                self.$store.dispatch('login', {
+                    user_id : userId, 
+                    auth_mobl_no :  self.mobileNo
+                }).then((data) => 
+                {            
+                     self.checkMobileNo(data)                     
+                });
+            }       
+        })    
+    },
+    //휴대폰번호 체크
+    checkMobileNo(data)
+    {
+          let self = this
+          self.accLoginInfo =  data      
+          //마이키핀 휴대폰 번호와 코벡스 휴대폰 정보가 일치하지 않는 경우, 
+          //휴대폰번호변경페이지로 이동  
+          if(  self.mobileNo == data.db_mobl_no  )//거래소 이동
+          {    
+              //data.user_day_cnt = 5
+              console.log('user_day_cnt:'+ data.user_day_cnt)    
+              self.dayCnt = parseInt(data.user_day_cnt)
+              console.log('dayCnt:'+ self.dayCnt)    
+              self.dayCntParams = { 
+                                    dayCnt:   self.dayCnt, 
+                                    userId:   self.accLoginInfo.user_id, 
+                                    authCi:   self.authCi, 
+                                    mobileNo: self.mobileNo                                  
+                                  }
+              console.log('dayCntParams:'+ JSON.stringify(self.dayCntParams))
+
+              if(     parseInt(data.user_day_cnt) == 5
+                  ||  parseInt(data.user_day_cnt) == 3
+                  ||  parseInt(data.user_day_cnt) == 1 )
+              {
+                  console.log('user_day_cnt:'+  data.user_day_cnt)                  
+                  self.$EventBus.$emit("checkDayCntGuide",  self.dayCntParams)  
+              }            
+              else if(parseInt(data.user_day_cnt) < 0)
+              {
+                  console.log('user_day_cnt:'+  data.user_day_cnt)                      
+                  self.$EventBus.$emit("checkDayCntOver")    
+              }    
+              else 
+              {
+                 self.$EventBus.$emit('reloadStockMaster');   
+                  self.$router.push({name:'exchange'})            
+              }                                     
+              
+          }else  //휴대폰번호변경페이지로 이동 
+          {                        
+              self.$router.push({name: 'mypagephonenumchange', 
+              params:{
+                        loginUserData: self.accLoginInfo,
+                        authCi:self.authCi,
+                        mobileNo:self.mobileNo
+                      }});        
+          }
+    }, 
+
+  
+    //websocket 비동기 통신이 있는부분 확인용으로 async 붙임.
+    onSubmit: async function () {
+      let self = this
+      let user = self.$store.state.user
+
+      self.$refs['form'].validate((valid) => {
+        if (valid) {
+          // recaptcha
+          if (this.showReCaptcha && !this.checkRecaptcha) {
+            // 자동 로봇 아님에 체크하세요.
+            this.$alert(this.$t('login.a014'),'', {
+                confirmButtonText: this.$t('login.g009')
+            });
+            return
+          }
+          // pre login
+          self.$store.dispatch('preLogin', {
+            auth_ci: self.credentialData[1].vc.credentialSubject.ci  
+          }).then((data) => {          
+         
+            let userId = data.user_id    
+            let unitCode = data.unit_code
+            let userGrpId = data.user_grp_id
+            let switchIp = data.switch_ip
+            
+            //login 처리
+            if(userId != '' &&  unitCode != ''){
+                self.$store.dispatch('login', {
+                    user_id : user,
+                    auth_mobl_no : self.credentialData[0].vc.credentialSubject.mobileNumber
+                }).then((data) => {
+                    console.log('login Success')
+                    self.$EventBus.$emit('reloadStockMaster');            
+                    self.$router.push({name:'mExchange'})
+                });
+            }
+
+            // if (temp_use_tp == '1') {
+            //   const param = {
+            //     secu_auth_tp: secu_auth_tp,
+            //     user_id:    user_id,
+            //     reqUrl: self.$route.query.reqUrl
+            //   }
+            //   self.$router.push({name:'newPassword', params: param}) //새 비밀번호 등록
+            // } else if (secu_auth_tp == '0') {
+            //   // console.log('보안:미등록')
+            //   user.newSecurePin.user_id = user_id
+            //   self.$router.push({name: 'securityIntro'})
+            // } else if (secu_auth_tp == '1') {
+            //   console.log('보안:비밀번호')
+            //   self.$router.push({name: 'securePIN', params: {reqUrl: this.$route.query.reqUrl}})
+            // } else if (secu_auth_tp == '3') {
+            //   console.log('보안:구글OTP')
+            //   self.$router.push({name: 'googleOTP', params: {reqUrl: this.$route.query.reqUrl}})
+            // } else {
+            //   console.log('보안:' + secu_auth_tp)
+            // }
+            console.log('preLogin Success')
+          }, (errorData) => {
+            if (errorData.errCode === '40702') {
+              this.$alert(self.$t('sys_err.'+errorData.errCode), '', {
+                confirmButtonText: this.$t('login.g009')
+              })
+
+              this.showReCaptcha = true
+              // 최초 recaptcha 접근시 recaptcha.reset() 함수가 없음 LJH 2019.4.2
+              if( this.$refs.recaptcha != null) {
+                this.$refs.recaptcha.reset()
+              }
+              this.checkRecaptcha = false
+            } else if (errorData.errCode === '40500') {
+              // 비밀번호를 5회 이상 잘못 입력하여 로그인이 차단 되었습니다.\n[비밀번호 찾기]로 비밀번호를 변경해 주시기 바랍니다.
+              this.$alert(this.$t('login.a013'), '', {
+                confirmButtonText: this.$t('login.g009')
+              })
+              
+              self.$router.push({name:'passwordFind'}) //비밀번호 찾기
+            } else if (errorData.errCode === '40312') {
+              // 가입된 이메일주소가 아닙니다.
+              this.$alert(this.$t('login.a010'), '', {
+                confirmButtonText: this.$t('login.g009')
+              })
+            } else {
+              // 전문 호출 에러 메시지 언어팩 적용
+              self.$alert(self.$t('sys_err.' + errorData.errCode), '', {
+                dangerouslyUseHTMLString: true,
+                confirmButtonText: self.$t('sys_err.a001')
+              });
+            }
+          })
+        } else {
+          self.disabled = true
+        }
+      })
+    },
+    signupClicked() {
+      this.$router.push({name: 'registration'})
+    },
+    passwordFindClicked() {
+      this.$router.push({name: 'passwordFind'})
+    },
+    accountFindClicked() {
+      this.$router.push({name: 'accountFind'})
+    },
+    lengthLimit(e) {            
+      if (e.target.value.length >= 60) {                
+        e.preventDefault();
+      }
+    },
+    pressEnter(e) {
+      if (e.key == 'Enter') {
+        this.$refs['loginBtn'].$el.focus();
+        this.$refs['loginBtn'].$el.click();
+      }
+    },
+    emailInputKeydown(e) {
+      if (e.key == 'Enter') {
+        this.$refs['password'].focus();
+      }
+    },
+    email_pw_onFocus(e) {
+      // 2019.04.09 LJH nprotect 시점 변경 (로그인페이지, 자동로그인중 -> 진입시)
+      // if (npPfsCtrl.isStarting) return;
+
+      // //브라우저 지원여부 체크
+      // var isSupport = npPfsCtrl.IsSupport();
+      // if (!isSupport) {
+      //     지원되지 않은 브라우져입니다.");
+          
+      //     location.href = "/static/browser/browsercheck.html"
+      // }
+      // // 키보드 보안
+      // window.npPfsStartup(null, true, true, false, false, "npkencrypt", "on")
+    },
+
+  },
+  mounted(){
+      const params = new URLSearchParams(location.hash.substring(7));
+      const stateVal = params.get("state");
+      const codeVal = params.get("code");
+
+      console.log('login_state:', stateVal);
+      console.log('login_code:', codeVal);
+
+      const data = {
+            state:stateVal,
+            code:codeVal
+      }    
+
+      if(data.state!= null)
+      {
+        this.myKeepInCallback(data)	  
+      }
+  },
+  created() {
+    this.$EventBus.$emit('pc-navi', '');    
+  },
+  destroyed(){
+    this.$store.commit("setBeforePageUrl", null);
+  },
+  beforeCreate() {
+    // 2019.04.09 LJH nprotect 시점 변경 (로그인페이지, 자동로그인중 -> 진입시)
+    // if (npPfsCtrl.isStarting) return;
+    // npPfsCtrl.showLoading();
+
+    // //브라우저 지원여부 체크
+    // var isSupport = npPfsCtrl.IsSupport();
+    // if (!isSupport) {
+    //     지원되지 않은 브라우져입니다.");
+        
+    //     location.href = "/static/browser/browsercheck.html"
+    // }
+    
+    // //원격접속 체크
+    // setTimeout(() => {
+        
+    //     npPfsCtrl.isVirtualMachine(function(result){
+    //         if(result == true) {
+
+    //             가상운영체제 또는 원격으로 접속하셨습니다. 키보드보안 미지원 환경입니다.");
+    //             location.href = "/"
+    //         }
+    //     });
+    // }, 4000);
+    
+    // // 키보드 보안
+    // window.npPfsStartup(null, true, true, false, false, "npkencrypt", "on");
+  },
+  beforeRouteEnter(to, from, next) {
+    next((self) => {
+      if (from.name == 'safetyProgram') {
+        location.reload()
+      }
+    })
+  },
+}
+</script>

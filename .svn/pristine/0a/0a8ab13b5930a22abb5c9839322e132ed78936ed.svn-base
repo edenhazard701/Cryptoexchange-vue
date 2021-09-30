@@ -1,0 +1,148 @@
+<template>
+  <el-menu v-bind:default-active="activeMenuIndex()" class="el-menu-vertical-demo" @select="handleSelect" :router="false">
+    <el-menu-item index="1" :route="{name:'mExchange'}" @click="accCreatePopup('mExchange')">
+      <i class="el-icon-menu"></i>
+      <span>{{$t('m_main.e004')}}<!-- 거래소 --></span>
+    </el-menu-item>
+    <!-- <el-menu-item index="2" :route="{name:'mSmartInvest'}">
+      <i class="el-icon-menu"></i>
+      <span>{{$t('m_main.e005')}}</span>
+    </el-menu-item> -->
+    <el-menu-item index="2" :route="{name:'mInvestment'}" @click="accCreatePopup('mInvestment')">
+      <i class="el-icon-document"></i>
+      <span>{{$t('m_main.e006')}}<!-- 투자 내역 --></span>
+    </el-menu-item>
+    <el-menu-item index="3" :route="{name:'mBank'}"  @click="accCreatePopup('mBank')">
+      <i class="el-icon-setting"></i>
+      <span>{{$t('m_main.e007')}}<!-- 입출금 --></span>
+    </el-menu-item>
+    <el-menu-item index="4" :route="{name:'mSmartScreener'}" @click="accCreatePopup('mSmartScreener')">
+      <i class="el-icon-menu"></i>
+      <span>{{$t('main.h014')}}<!-- 스크리너 --></span>
+    </el-menu-item>
+    <el-menu-item index="5" :route="{name:'mMyPage'}" @click="accCreatePopup('mMyPage')" v-show="isLoggedIn">
+      <i class="el-icon-setting"></i>
+      <span>{{$t('m_main.e008')}}<!-- 마이페이지 --></span>
+    </el-menu-item>
+  </el-menu>
+</template>
+
+<script>
+import { mapActions, mapGetters } from 'vuex';
+
+export default {
+  data () {
+    return {
+      index: '0'
+    };
+  },
+  computed: {
+    ...mapGetters(['isLoggedIn', 'getUnitcode']),       
+  },
+  methods : {
+    handleSelect(index, indexKey) {
+      this.$parent.moveMenu();
+    },
+    activeMenuIndex: function () {
+      switch (this.$route.name) {
+        case 'mExchange': return '1';
+        case 'mInvestment': return '2';
+        case 'mBank': return '3';
+        case 'mSmartScreener': return '4';
+        case 'mMyPage': return '5';
+        default : return '0';
+      }
+    },
+    accCreatePopup(nameTo){
+      let self = this;
+
+      //로그인체크 먼저
+      if (!self.isLoggedIn) {   
+          self.$alert(self.$t('exchange.a017'), '', {  //로그인이 필요한 서비스입니다.
+              confirmButtonText: self.$t('m_login.g014'),
+              callback: function() {
+                self.$router.push({name: 'mLogin'});
+              }
+          });    
+      };
+
+      console.log("getUnitcode:"+self.getUnitcode)
+      if(nameTo == 'mInvestment' || nameTo == 'mBank')
+      {                
+        //계좌생성정보 있는지 체크
+        if(window.loginObj['auth_ci'] )
+          self.checkAccCreationInfo(nameTo)     
+        else
+          self.$router.push({name:nameTo})        
+      }else
+      {
+         self.$router.push({name:nameTo}) 
+      }
+    },
+    //계좌생성정보 있는지 체크
+    checkAccCreationInfo(nameTo){
+      let self = this;  
+
+      self.$socket.sendProcessByName('ac519', (queryData) => {
+          let block = queryData.getBlockData('InBlock1')[0];
+          block['auth_ci'] = window.loginObj['auth_ci']
+          console.log("block:" + JSON.stringify(block.auth_ci))
+     }, function (queryData) {
+          if (queryData != null) {
+              let OutBlock1 = queryData['queryObj']['OutBlock1'][0];
+             
+              //계좌생성정보 저장 - 로그인한 상태에서 계좌생성중에 물고다녀야 하는 유저아이디를 사용하해야 함
+              self.$store.state.user.userAccCreationInfo = OutBlock1  
+              console.log("userAccCreationInfo:"+JSON.stringify(self.$store.state.user.userAccCreationInfo));  
+                             
+              //계좌생성된 상태가 아니면
+              if( self.getUnitcode == '00999' )
+              {
+                  self.$confirm('계좌만들기 후 이용 가능합니다.', '', {
+                      confirmButtonText: '계좌만들기',
+                      cancelButtonText: self.$t('m_mypage.k040')                 
+                  }).then(() => {                       
+                    //계좌만들기 는 모바일앱에서만 가능
+                    //지점코드 저장여부에 따라 계좌만들다 만게 있는지 판단
+                    if(self.isDevice)  //모바일앱 
+                    {
+                        if( (OutBlock1['unit_code']) != '' ){
+                           self.$router.push({name: 'mAccCreateResume', params:{ci:window.loginObj['auth_ci'] }});   //계좌만들기 이어서 하기
+                        }else
+                        {
+                           self.$router.push({name: 'mAccCreateIntro', params:{ci:window.loginObj['auth_ci'] }});   //계좌만들기 인트로       
+                        }   
+                    }
+                    else   //모바일웹
+                    {
+                        self.$router.push({name:'mGuideToKovexApp', params:{from: 'acc' }}).catch(()=>{});    
+                    }                      
+                  })
+              }
+              else
+              {
+                  self.$router.push({name:nameTo}) 
+              }                 
+              
+          } else {
+            console.log('계좌생성정보 저장 실패1')
+            // 전문 에러 언어팩 적용
+            const errorData = JSON.parse( window.sessionStorage.getItem('lastErrorData') );
+            if (errorData.trName != "ac519") return          
+
+                 if(errorData.errCode == '49044')  //19세 미만 회원가입 시도
+                 {
+                    self.$router.push({name: 'mRegiRefused'});  
+                 }else if(errorData.errCode == '49042') //이미 가입완료된 회원입니다.
+                 {
+                    //회원가입불가 페이지로 이동  
+                    self.$router.push({name: 'mRegiFail'});  
+                 }
+           
+                return;
+          }
+        })
+    }    
+  }
+};
+</script>
